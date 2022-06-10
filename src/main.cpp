@@ -1,8 +1,7 @@
 #include "mainwindow.h"
 #include "utility.h"
 #include "ui/LoginDialog.h"
-#include "ui/UserDashboard.h"
-#include "ui/EmployeeDashboard.h"
+#include "ui/Dashboard.h"
 
 #include <QApplication>
 
@@ -21,13 +20,10 @@ int main(int argc, char *argv[]) {
 //    QObject::connect(&loginDialog, &LoginDialog::loggedIn,
 //                     &w, &MainWindow::setUser);
 
-    UserDashboard user;
-    EmployeeDashboard employee;
+    Dashboard user;
 
     QObject::connect(&loginDialog, &LoginDialog::userLoggedIn,
-                     &user, &UserDashboard::setUser);
-    QObject::connect(&loginDialog, &LoginDialog::employeeLoggedIn,
-                     &employee, &EmployeeDashboard::setUser);
+                     &user, &Dashboard::setUser);
 
 //    w.show();
     return a.exec();

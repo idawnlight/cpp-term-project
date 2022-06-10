@@ -17,12 +17,25 @@ set(PROJECT_SOURCES
         db/Record.cpp
         db/Record.h
         ui/LoginDialog.cpp
-        ui/LoginDialog.h db/Employee.cpp db/Employee.h ui/UserDashboard.cpp ui/UserDashboard.h ui/EmployeeDashboard.cpp ui/EmployeeDashboard.h)
+        ui/LoginDialog.h
+        ui/Dashboard.cpp
+        ui/Dashboard.h
+        utility.cpp
+        ui/widgets/DashboardWidget.cpp
+        ui/widgets/DashboardWidget.h
+        ui/widgets/EmployeeWidget.cpp
+        ui/widgets/EmployeeWidget.h
+        ui/widgets/UsersModel.cpp
+        ui/widgets/UsersModel.h
+        ui/widgets/UserDialog.cpp
+        ui/widgets/UserDialog.h)
 
 qt_add_executable(Bank
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         )
+
+target_compile_options(Bank PRIVATE -Wall)
 
 target_link_libraries(Bank PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(Bank PRIVATE sqlite_orm::sqlite_orm)

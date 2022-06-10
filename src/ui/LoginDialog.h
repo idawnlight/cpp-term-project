@@ -1,8 +1,7 @@
 #include <QDialog>
 #include <QtWidgets>
 
-// #include "db/User.h"
-#include "db/Employee.h"
+#include "db/User.h"
 
 #ifndef CPP_TERM_PROJECT_LOGINDIALOG_H
 #define CPP_TERM_PROJECT_LOGINDIALOG_H
@@ -16,11 +15,12 @@ public:
 private:
     QLineEdit *nameText;
     QLineEdit *passwordText;
+    void debugFillUser();
+    void debugFillEmployee();
 
 signals:
 //    void loggedIn(User user);
     void userLoggedIn(User user);
-    void employeeLoggedIn(Employee employee);
 
 public slots:
     void accept() override;

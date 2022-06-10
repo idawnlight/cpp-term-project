@@ -5,7 +5,6 @@
 
 #include "sqlite_orm/sqlite_orm.h"
 #include "User.h"
-#include "Employee.h"
 #include "Account.h"
 #include "Record.h"
 
@@ -83,13 +82,8 @@ public:
                                        make_column("name", &User::name),
                                        make_column("idNumber", &User::idNumber, unique()),
                                        make_column("phoneNumber", &User::phoneNumber, unique()),
-                                       make_column("password", &User::password)),
-                            make_table("employees",
-                                       make_column("id", &Employee::id, autoincrement(), primary_key()),
-                                       make_column("name", &Employee::name),
-                                       make_column("idNumber", &Employee::idNumber, unique()),
-                                       make_column("phoneNumber", &Employee::phoneNumber, unique()),
-                                       make_column("password", &Employee::password)),
+                                       make_column("password", &User::password),
+                                       make_column("employeeId", &User::employeeId)),
                             make_table("accounts",
                                        make_column("id", &Account::id, autoincrement(), primary_key()),
                                        make_column("balance", &Account::balance),
@@ -100,10 +94,6 @@ public:
                                        make_column("amount", &Record::amount),
                                        make_column("remark", &Record::remark),
                                        make_column("time", &Record::time)));
-    }
-
-    Db() {
-        getStorage().sync_schema();
     }
 };
 

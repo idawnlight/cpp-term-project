@@ -20,7 +20,6 @@ private:
     void createMenus();
 
     Db database;
-    User user;
 };
 
 #endif // MAINWINDOW_H

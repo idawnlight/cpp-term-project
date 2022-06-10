@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     createMenus();
 
-    User newUser{};
+//    User newUser{};
 }
 
 MainWindow::~MainWindow() {

@@ -1,4 +1,6 @@
 #include "LoginDialog.h"
+#include "db/Db.h"
+#include "utility.h"
 
 #include <QtWidgets>
 
@@ -9,7 +11,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     auto nameLabel = new QLabel(tr("Username"));
     auto passwordLabel = new QLabel(tr("Password"));
     auto okButton = new QPushButton(tr("Login"));
-    auto cancelButton = new QPushButton(tr("Exit"));
+    okButton->setDefault(true);
+//    auto cancelButton = new QPushButton(tr("Exit"));
 
     auto gLayout = new QGridLayout;
 
@@ -22,12 +25,18 @@ LoginDialog::LoginDialog(QWidget *parent)
     passwordText->setEchoMode(QLineEdit::Password);
 
     auto buttonLayout = new QHBoxLayout;
+    auto debugUserButton = new QPushButton(tr("User"));
+    auto debugEmployeeButton = new QPushButton(tr("Employee"));
+    buttonLayout->addWidget(debugUserButton);
+    buttonLayout->addWidget(debugEmployeeButton);
+    connect(debugUserButton, &QAbstractButton::clicked, this, &LoginDialog::debugFillUser);
+    connect(debugEmployeeButton, &QAbstractButton::clicked, this, &LoginDialog::debugFillEmployee);
     buttonLayout->addWidget(okButton);
 //    buttonLayout->addWidget(cancelButton);
 
     gLayout->addLayout(buttonLayout, 2, 1, Qt::AlignRight);
 
-    auto titleLabel = new QLabel("<h2>Azure Bank Inc.</h2>");
+    auto titleLabel = new QLabel("<h2>Azure Bank</h2>");
     auto usernameNoteLabel = new QLabel("Username can be either phone number or ID card.");
 
     auto mainLayout = new QVBoxLayout;
@@ -39,16 +48,34 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(okButton, &QAbstractButton::clicked, this, &QDialog::accept);
 //    connect(cancelButton, &QAbstractButton::clicked, this, &QDialog::reject);
 
-    setWindowTitle(tr("Login"));
+    setWindowTitle(tr("Login - Azure Bank"));
+
+    // TODO: remove it
+    if (Db::getStorage().count<User>() == 0) {
+        User temp{"Light", "440102198001021230", "13700000000", Utility::password_hash("password")};
+        Db::getStorage().insert(temp);
+    }
+    if (Db::getStorage().count<User>(where(c(&User::employeeId) > 0)) == 0) {
+        User temp{"Light Admin", "440102198101021230", "13700000001", Utility::password_hash("password"), true};
+        Db::getStorage().insert(temp);
+    }
 }
 
 void LoginDialog::accept() {
-//    QDialog::accept();
 // TODO: real login
-    if (nameText->text() == "true") {
-        QDialog::accept();
-        loggedIn(User{});
-    } else {
+    try {
+        auto users = Db::getStorage().get_all<User>(where(c(&User::phoneNumber) == nameText->text().toLocal8Bit().constData() or c(&User::idNumber) == nameText->text().toLocal8Bit().constData()));
+        if (users.empty()) {
+            throw std::invalid_argument("user not found");
+        }
+        auto user = users.front();
+        if (Utility::password_verify(passwordText->text().toLocal8Bit().constData(), user.password.c_str())) {
+            QDialog::accept();
+            userLoggedIn(user);
+        } else {
+            throw std::invalid_argument("wrong password");
+        }
+    } catch (const std::exception& e) {
         passwordText->clear();
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Warning);
@@ -56,4 +83,14 @@ void LoginDialog::accept() {
         msgBox.setInformativeText("The user is not found or the password is incorrect.");
         msgBox.exec();
     }
+}
+
+void LoginDialog::debugFillUser() {
+    nameText->setText("440102198001021230");
+    passwordText->setText("password");
+}
+
+void LoginDialog::debugFillEmployee() {
+    nameText->setText("440102198101021230");
+    passwordText->setText("password");
 }
