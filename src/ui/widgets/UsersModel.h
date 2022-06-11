@@ -13,7 +13,7 @@ class UsersModel : public QAbstractTableModel {
 
 public:
     UsersModel(QObject *parent = nullptr);
-    UsersModel(std::vector<User> contacts, QObject *parent = nullptr);
+    UsersModel(std::vector<User> users, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
@@ -24,6 +24,8 @@ public:
 //    bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
 //    bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
     const std::vector<User> &getUsers() const;
+    void setUsers(std::vector<User> users);
+    void fetchData();
 
 private:
     std::vector<User> users;

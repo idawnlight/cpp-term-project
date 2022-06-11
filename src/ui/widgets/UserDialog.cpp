@@ -1,14 +1,64 @@
 #include "UserDialog.h"
+#include "utility.h"
+
+UserDialog::UserDialog(QWidget *parent, bool addUser) : QDialog(parent), type(UserDialogType::Add) {
+    initDialog();
+    setWindowTitle(tr("Add User - Azure Bank"));
+
+    gLayout->addWidget(new QLabel("Add a new user"), 0, 0, 1, 2);
+}
 
 UserDialog::UserDialog(QWidget *parent, User tUser, bool isEditable)
     : QDialog(parent),
       user(tUser),
-      isEditable(isEditable) {
+      isEditable(isEditable),
+      type(UserDialogType::Edit) {
+    initDialog();
     setWindowTitle(tr("Edit User - Azure Bank"));
 
+    gLayout->addWidget(new QLabel("User ID"), 0, 0);
+    gLayout->addWidget(new QLabel(QString::number(user.id)), 0, 1);
+    nameText->setText(QString(user.name.c_str()));
+    passwordText->setPlaceholderText("Leave blank to keep original password.");
+    idNumText->setText(QString(user.idNumber.c_str()));
+    phoneNumText->setText(QString(user.phoneNumber.c_str()));
+
+    if (user.employeeId != -1) {
+        gLayout->addWidget(new QLabel("Employee ID"), 5, 0);
+        gLayout->addWidget(new QLabel(QString::number(user.employeeId)), 5, 1);
+    }
+}
+
+void UserDialog::accept() {
+    if (type == UserDialogType::Edit) {
+        if (nameText->text() != user.name.c_str()) {
+            user.name = nameText->text().toStdString();
+        }
+        if (idNumText->text() != user.idNumber.c_str()) {
+            user.idNumber = idNumText->text().toStdString();
+        }
+        if (phoneNumText->text() != user.phoneNumber.c_str()) {
+            user.phoneNumber = phoneNumText->text().toStdString();
+        }
+        if (!passwordText->text().isEmpty()) {
+            user.password = Utility::password_hash(passwordText->text().toLocal8Bit().data());
+        }
+
+        emit userChanged(user);
+    } else {
+        User newUser{nameText->text().toStdString(),
+                     idNumText->text().toStdString(),
+                     phoneNumText->text().toStdString(),
+                     Utility::password_hash(passwordText->text().toLocal8Bit().data())};
+        emit userAdded(newUser);
+    }
+
+    QDialog::accept();
+}
+
+void UserDialog::initDialog() {
     auto mainLayout = new QVBoxLayout;
 
-    auto gLayout = new QGridLayout;
     gLayout->setColumnMinimumWidth(1, 270);
 
     if (!isEditable) {
@@ -17,30 +67,19 @@ UserDialog::UserDialog(QWidget *parent, User tUser, bool isEditable)
         phoneNumText->setReadOnly(true);
     }
 
-    gLayout->addWidget(new QLabel("User ID"), 0, 0);
-    gLayout->addWidget(new QLabel(QString::number(user.id)), 0, 1);
 
     gLayout->addWidget(new QLabel("Name"), 1, 0);
-    nameText->setText(QString(user.name.c_str()));
     gLayout->addWidget(nameText, 1, 1);
 
     gLayout->addWidget(new QLabel("Password"), 2, 0);
-    passwordText->setPlaceholderText("Leave blank to keep original password.");
     gLayout->addWidget(passwordText, 2, 1);
     passwordText->setEchoMode(QLineEdit::Password);
 
     gLayout->addWidget(new QLabel("ID Card"), 3, 0);
-    idNumText->setText(QString(user.idNumber.c_str()));
     gLayout->addWidget(idNumText, 3, 1);
 
     gLayout->addWidget(new QLabel("Phone Number"), 4, 0);
-    phoneNumText->setText(QString(user.phoneNumber.c_str()));
     gLayout->addWidget(phoneNumText, 4, 1);
-
-    if (user.employeeId != -1) {
-        gLayout->addWidget(new QLabel("Employee ID"), 5, 0);
-        gLayout->addWidget(new QLabel(QString::number(user.employeeId)), 5, 1);
-    }
 
     mainLayout->addLayout(gLayout);
 

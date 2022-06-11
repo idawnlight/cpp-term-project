@@ -34,15 +34,16 @@ LoginDialog::LoginDialog(QWidget *parent)
     buttonLayout->addWidget(okButton);
 //    buttonLayout->addWidget(cancelButton);
 
-    gLayout->addLayout(buttonLayout, 2, 1, Qt::AlignRight);
+    auto usernameNoteLabel = new QLabel("<i>Username can be either phone number or ID card.</i>");
+    gLayout->addWidget(usernameNoteLabel, 2, 0, 1, 2);
+    gLayout->addLayout(buttonLayout, 3, 1, Qt::AlignRight);
 
     auto titleLabel = new QLabel("<h2>Azure Bank</h2>");
-    auto usernameNoteLabel = new QLabel("Username can be either phone number or ID card.");
 
     auto mainLayout = new QVBoxLayout;
     mainLayout->addWidget(titleLabel);
     mainLayout->addLayout(gLayout);
-    mainLayout->addWidget(usernameNoteLabel);
+//    mainLayout->addWidget(usernameNoteLabel);
     setLayout(mainLayout);
 
     connect(okButton, &QAbstractButton::clicked, this, &QDialog::accept);
@@ -71,7 +72,7 @@ void LoginDialog::accept() {
         auto user = users.front();
         if (Utility::password_verify(passwordText->text().toLocal8Bit().constData(), user.password.c_str())) {
             QDialog::accept();
-            userLoggedIn(user);
+            emit userLoggedIn(user);
         } else {
             throw std::invalid_argument("wrong password");
         }

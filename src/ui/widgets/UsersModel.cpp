@@ -8,7 +8,7 @@
 UsersModel::UsersModel(QObject *parent)
         : QAbstractTableModel(parent)
 {
-    users = Db::getStorage().get_all<User>(where(c(&User::employeeId) == -1));
+    fetchData();
 }
 
 UsersModel::UsersModel(std::vector<User> users, QObject *parent)
@@ -49,6 +49,8 @@ QVariant UsersModel::data(const QModelIndex &index, int role) const
             default:
                 break;
         }
+    } else if (role == Qt::EditRole) {
+        return users.at(index.row()).id;
     }
     return QVariant();
 }
@@ -143,4 +145,12 @@ Qt::ItemFlags UsersModel::flags(const QModelIndex &index) const {
 
 const std::vector<User> &UsersModel::getUsers() const {
     return users;
+}
+
+void UsersModel::setUsers(std::vector<User> tusers) {
+    users = tusers;
+}
+
+void UsersModel::fetchData() {
+    users = Db::getStorage().get_all<User>(where(c(&User::employeeId) == -1));
 }

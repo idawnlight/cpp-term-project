@@ -1,4 +1,5 @@
 #include "DashboardWidget.h"
+#include "UserDialog.h"
 #include <QtWidgets>
 
 DashboardWidget::DashboardWidget(QWidget *parent, const User& user)
@@ -11,8 +12,14 @@ DashboardWidget::DashboardWidget(QWidget *parent, const User& user)
 
     auto userInfoButton = new QPushButton(tr("Info..."));
     headerLayout->addWidget(userInfoButton, 0, Qt::AlignRight);
+    connect(userInfoButton, &QAbstractButton::clicked, this, &DashboardWidget::userInfo);
 
     mainLayout->addLayout(headerLayout);
 
     setLayout(mainLayout);
+}
+
+void DashboardWidget::userInfo() {
+    UserDialog userDialog{this, user, false};
+    userDialog.exec();
 }

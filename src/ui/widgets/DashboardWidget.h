@@ -11,6 +11,9 @@ class DashboardWidget : public QWidget {
 public:
     DashboardWidget(QWidget *parent = nullptr, const User& user = {});
 
+public slots:
+    void userInfo();
+
 protected:
     User user;
     QVBoxLayout* mainLayout;
