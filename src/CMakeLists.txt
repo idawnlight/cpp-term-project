@@ -5,8 +5,6 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.cpp
-        mainwindow.h
         utility.h
         db/Account.cpp
         db/Account.h
@@ -16,6 +14,8 @@ set(PROJECT_SOURCES
         db/User.cpp
         db/Record.cpp
         db/Record.h
+        db/Config.cpp
+        db/Config.h
         ui/LoginDialog.cpp
         ui/LoginDialog.h
         ui/Dashboard.cpp
@@ -23,12 +23,14 @@ set(PROJECT_SOURCES
         utility.cpp
         ui/widgets/DashboardWidget.cpp
         ui/widgets/DashboardWidget.h
-        ui/widgets/EmployeeWidget.cpp
-        ui/widgets/EmployeeWidget.h
+        ui/widgets/DashboardWidgetEmployee.cpp
+        ui/widgets/DashboardWidgetEmployee.h
         ui/widgets/UsersModel.cpp
         ui/widgets/UsersModel.h
         ui/widgets/UserDialog.cpp
-        ui/widgets/UserDialog.h)
+        ui/widgets/UserDialog.h
+        ui/widgets/DashBoardFinder.cpp
+        ui/widgets/DashBoardFinder.h ui/widgets/AccountWidget.cpp ui/widgets/AccountWidget.h)
 
 qt_add_executable(Bank
         MANUAL_FINALIZATION

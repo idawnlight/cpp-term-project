@@ -6,10 +6,13 @@
 #include <string>
 #include <iostream>
 
-namespace Utility {
-    void init();
+class Utility {
+public:
+    static void init();
 
-    std::string password_hash(const char *password);
+    static std::string password_hash(const char *password);
 
-    bool password_verify(const char *password, const char *hashed_password);
+    static bool password_verify(const char *password, const char *hashed_password);
+
+    static bool checkIdNumber(const char *idNumber);
 };

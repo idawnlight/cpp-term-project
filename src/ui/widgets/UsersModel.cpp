@@ -5,6 +5,8 @@
 #include "UsersModel.h"
 #include "db/Db.h"
 
+#include <QtWidgets>
+
 UsersModel::UsersModel(QObject *parent)
         : QAbstractTableModel(parent)
 {

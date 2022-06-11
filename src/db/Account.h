@@ -15,7 +15,7 @@ std::unique_ptr<AccountType> AccountTypeFromString(const std::string& s);
 
 class Account {
 public:
-    int id;
+    int id = -1;
     int belong_to;
     int balance;
     AccountType type;

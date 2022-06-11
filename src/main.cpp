@@ -1,4 +1,3 @@
-#include "mainwindow.h"
 #include "utility.h"
 #include "ui/LoginDialog.h"
 #include "ui/Dashboard.h"
@@ -11,6 +10,13 @@ int main(int argc, char *argv[]) {
 //    if (Utility::password_verify("Correct Horse Battery Staple", hashed.c_str())) {
 //        std::cout << "true";
 //    }
+
+//    if (Utility::checkIdNumber("440102198001021230")) {
+//        qDebug() << "true";
+//    } else {
+//        qDebug() << "false";
+//    }
+
     QApplication a(argc, argv);
 
     LoginDialog loginDialog;

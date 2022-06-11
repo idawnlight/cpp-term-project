@@ -7,7 +7,7 @@
 
 class User {
 public:
-    int id{};
+    int id = -1;
     std::string name;
     std::string idNumber;
     std::string phoneNumber;

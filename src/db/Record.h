@@ -5,10 +5,25 @@
 
 #include <string>
 
+enum RecordType {
+    Deposit,
+    Withdrawn,
+    Transfer,
+    FixedDeposit
+};
+
+std::string RecordTypeToString(RecordType type);
+std::unique_ptr<RecordType> RecordTypeFromString(const std::string& s);
+
 class Record {
 public:
     int id;
     int amount;
+    std::string from;
+    std::string to;
+    RecordType type;
+    bool isRedeemed = false;
+    double interestRate = 0;
     std::string remark;
     std::string time;
 };
