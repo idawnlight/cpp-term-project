@@ -30,7 +30,7 @@ set(PROJECT_SOURCES
         ui/widgets/UserDialog.cpp
         ui/widgets/UserDialog.h
         ui/widgets/DashBoardFinder.cpp
-        ui/widgets/DashBoardFinder.h ui/widgets/AccountWidget.cpp ui/widgets/AccountWidget.h)
+        ui/widgets/DashBoardFinder.h ui/widgets/AccountWidget.cpp ui/widgets/AccountWidget.h ui/widgets/AccountInfoLabel.cpp ui/widgets/AccountInfoLabel.h)
 
 qt_add_executable(Bank
         MANUAL_FINALIZATION

@@ -47,7 +47,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     setLayout(mainLayout);
 
     connect(okButton, &QAbstractButton::clicked, this, &QDialog::accept);
-//    connect(cancelButton, &QAbstractButton::clicked, this, &QDialog::reject);
+//    connect(cancelButton, &QAbstractButton::doubleClicked, this, &QDialog::reject);
 
     setWindowTitle(tr("Login - Azure Bank"));
 

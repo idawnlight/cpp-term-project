@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <QString>
+#include "User.h"
 
 #ifndef CPP_TERM_PROJECT_ACCOUNT_H
 #define CPP_TERM_PROJECT_ACCOUNT_H
@@ -19,6 +21,14 @@ public:
     int belong_to;
     int balance;
     AccountType type;
+
+    Account();
+    Account(int belong_to, AccountType type);
+    QString toString();
+    void deposit(int amount);
+    void withdrawn(int amount);
+    void transfer(int amount, Account receiver);
+    User user();
 };
 
 #endif //CPP_TERM_PROJECT_ACCOUNT_H

@@ -5,7 +5,7 @@
 #include "AccountWidget.h"
 #include "db/Db.h"
 
-AccountWidget::AccountWidget(QWidget *parent, int userId) : QGridLayout(parent) {
+AccountWidget::AccountWidget(QWidget *parent, int userId, bool isEmployee) : QGridLayout(parent), isEmployee(isEmployee) {
     initWidget(false);
     try {
         user = Db::getStorage().get<User>(userId);
@@ -16,13 +16,15 @@ AccountWidget::AccountWidget(QWidget *parent, int userId) : QGridLayout(parent) 
     }
 }
 
-AccountWidget::AccountWidget(QWidget *parent, User user) : QGridLayout(parent), user(user) {
+AccountWidget::AccountWidget(QWidget *parent, User user, bool isEmployee) : QGridLayout(parent), user(user), isEmployee(isEmployee) {
     initWidget();
     fetchByUserId(user.id);
 }
 
 void AccountWidget::fetchByUserId(int userId) {
     try {
+        current = Account();
+        savings = Account();
         user = Db::getStorage().get<User>(userId);
         auto accounts = Db::getStorage().get_all<Account>(where(c(&Account::belong_to) == user.id));
         for (auto account : accounts) {
@@ -40,59 +42,205 @@ void AccountWidget::fetchByUserId(int userId) {
 }
 
 void AccountWidget::initWidget(bool showNotFound) {
+    currentLayout->setAlignment(Qt::AlignTop);
+    currentLabel->setAlignment(Qt::AlignTop);
+    currentContent->setAlignment(Qt::AlignTop);
     currentLayout->addWidget(currentLabel);
     currentLayout->addWidget(currentContent);
+    currentLayout->addWidget(currentDepositButton);
+    currentLayout->addWidget(currentWithdrawnButton);
+    currentLayout->addWidget(currentTransferButton);
     currentLayout->addWidget(openCurrentButton);
     currentLayout->addWidget(closeCurrentButton);
 
-    savingLayout->addWidget(savingLabel);
-    savingLayout->addWidget(savingContent);
-    savingLayout->addWidget(openSavingButton);
-    savingLayout->addWidget(closeSavingButton);
+    savingsLayout->setAlignment(Qt::AlignTop);
+    savingsLabel->setAlignment(Qt::AlignTop);
+    savingsContent->setAlignment(Qt::AlignTop);
+    savingsLayout->addWidget(savingsLabel);
+    savingsLayout->addWidget(savingsContent);
+    savingsLayout->addWidget(savingsDepositButton);
+    savingsLayout->addWidget(savingsRedeemButton);
+    savingsLayout->addWidget(openSavingsButton);
+    savingsLayout->addWidget(closeSavingsButton);
 
     currentLabel->setVisible(false);
-    savingLabel->setVisible(false);
+    savingsLabel->setVisible(false);
+    currentDepositButton->setVisible(false);
+    currentWithdrawnButton->setVisible(false);
+    currentTransferButton->setVisible(false);
+
+    savingsDepositButton->setVisible(false);
+    savingsRedeemButton->setVisible(false);
     openCurrentButton->setVisible(false);
     closeCurrentButton->setVisible(false);
-    openSavingButton->setVisible(false);
-    closeSavingButton->setVisible(false);
+    openSavingsButton->setVisible(false);
+    closeSavingsButton->setVisible(false);
 
     addWidget(topLabel, 0, 0, 1, 2);
     addLayout(currentLayout, 1, 0);
-    addLayout(savingLayout, 1, 1);
-}
+    addLayout(savingsLayout, 1, 1);
 
+    connect(openCurrentButton, &QAbstractButton::clicked, this, &AccountWidget::openCurrentAccount);
+    connect(closeCurrentButton, &QAbstractButton::clicked, this, &AccountWidget::closeCurrentAccount);
+    connect(currentDepositButton, &QAbstractButton::clicked, this, &AccountWidget::currentAccountDeposit);
+    connect(currentWithdrawnButton, &QAbstractButton::clicked, this, &AccountWidget::currentAccountWithdrawn);
+    connect(currentTransferButton, &QAbstractButton::clicked, this, &AccountWidget::currentAccountTransfer);
+
+
+    connect(openSavingsButton, &QAbstractButton::clicked, this, &AccountWidget::openSavingsAccount);
+    connect(closeSavingsButton, &QAbstractButton::clicked, this, &AccountWidget::closeSavingsAccount);
+}
 
 void AccountWidget::refreshWidget() {
     if (user.id == -1) {
         topLabel->setText("User not found");
         currentLabel->setVisible(false);
-        savingLabel->setVisible(false);
+        savingsLabel->setVisible(false);
         currentContent->setVisible(false);
-        savingContent->setVisible(false);
+        savingsContent->setVisible(false);
     } else {
         topLabel->setText(QString("Account information of ").append(user.name.c_str()));
         currentLabel->setVisible(true);
-        savingLabel->setVisible(true);
+        savingsLabel->setVisible(true);
         if (current.id == -1) {
             currentContent->setText("Current Account not opened.");
-            openCurrentButton->setVisible(true);
-            closeCurrentButton->setVisible(false);
+            currentDepositButton->setVisible(false);
+            currentWithdrawnButton->setVisible(false);
+            currentTransferButton->setVisible(false);
+            if (isEmployee) {
+                openCurrentButton->setVisible(true);
+                closeCurrentButton->setVisible(false);
+            }
         } else {
-            currentContent->setText("Some Info.");
-            openCurrentButton->setVisible(false);
-            closeCurrentButton->setVisible(true);
+            currentContent->setAccount(current);
+            currentDepositButton->setVisible(true);
+            currentWithdrawnButton->setVisible(true);
+            currentTransferButton->setVisible(true);
+            if (isEmployee) {
+                openCurrentButton->setVisible(false);
+                closeCurrentButton->setVisible(true);
+            }
         }
         if (savings.id == -1) {
-            savingContent->setText("Savings Account not opened.");
-            openSavingButton->setVisible(true);
-            closeSavingButton->setVisible(false);
+            savingsContent->setText("Savings Account not opened.");
+            openSavingsButton->setVisible(true);
+            closeSavingsButton->setVisible(false);
+            if (isEmployee) {
+                savingsDepositButton->setVisible(false);
+                savingsRedeemButton->setVisible(false);
+            }
         } else {
-            savingContent->setText("Some Info.");
-            openSavingButton->setVisible(false);
-            closeSavingButton->setVisible(true);
+            savingsContent->setAccount(savings);
+            savingsDepositButton->setVisible(true);
+            savingsRedeemButton->setVisible(true);
+            if (isEmployee) {
+                openSavingsButton->setVisible(false);
+                closeSavingsButton->setVisible(true);
+            }
         }
         currentContent->setVisible(true);
-        savingContent->setVisible(true);
+        savingsContent->setVisible(true);
     }
+}
+
+void AccountWidget::openCurrentAccount() {
+    Account newAccount{user.id, AccountType::Current};
+    Db::getStorage().insert(newAccount);
+
+    fetchByUserId(user.id);
+}
+
+void AccountWidget::closeCurrentAccount() {
+    if (current.balance != 0) {
+        QMessageBox::information(nullptr, tr("Close Account - Azure Bank"),
+                                 tr("You can't close an account with balance."),
+                                 QMessageBox::Ok);
+        return;
+    }
+    int ret = QMessageBox::warning(nullptr, tr("Close Account - Azure Bank"),
+                                   tr("Do you really want to close the current account?"),
+                                   QMessageBox::Yes | QMessageBox::Cancel);
+    if (ret == QMessageBox::Yes) {
+        Db::getStorage().remove<Account>(current.id);
+    }
+
+    fetchByUserId(user.id);
+}
+
+void AccountWidget::openSavingsAccount() {
+    Account newAccount{user.id, AccountType::Savings};
+    Db::getStorage().insert(newAccount);
+
+    fetchByUserId(user.id);
+}
+
+void AccountWidget::closeSavingsAccount() {
+    if (savings.balance != 0) {
+        QMessageBox::information(nullptr, tr("Close Account - Azure Bank"),
+                             tr("You can't close an account with balance."),
+                             QMessageBox::Ok);
+        return;
+    }
+    int ret = QMessageBox::warning(nullptr, tr("Close Account - Azure Bank"),
+                                   tr("Do you really want to close the savings account?"),
+                                   QMessageBox::Yes | QMessageBox::Cancel);
+    if (ret == QMessageBox::Yes) {
+        Db::getStorage().remove<Account>(savings.id);
+    }
+
+    fetchByUserId(user.id);
+}
+
+void AccountWidget::currentAccountDeposit() {
+    bool ok;
+    double amount = QInputDialog::getDouble(nullptr, tr("Deposit - Azure Bank"),
+                                         tr("Deposit Amount: "), 0, 0, 2147483647, 2, &ok);
+    if (ok && amount > 0) {
+        current.deposit(amount * 100);
+        fetchByUserId(user.id);
+    }
+}
+
+void AccountWidget::currentAccountWithdrawn() {
+    bool ok;
+    double amount = QInputDialog::getDouble(nullptr, tr("Withdrawn - Azure Bank"),
+                                            tr("Withdrawn Amount: "), 0, 0, (double) current.balance / 100, 2, &ok);
+    if (ok && amount > 0) {
+        current.withdrawn(amount * 100);
+        fetchByUserId(user.id);
+    }
+}
+
+void AccountWidget::currentAccountTransfer() {
+    bool ok;
+    double receiver = QInputDialog::getInt(nullptr, tr("Transfer - Azure Bank"),
+                                            tr("Receiver Account ID: "), 0, 0, (double) current.balance / 100, 1, &ok);
+    if (ok && receiver != current.id) {
+        if (auto account = Db::getStorage().get_pointer<Account>(receiver)) {
+            if (account->type == AccountType::Savings) {
+                QMessageBox::information(nullptr, tr("Transfer - Azure Bank"),
+                                         tr("Transfer to savings account is not allowed.\nFor fixed deposit please use \"New Fixed Deposit\"."),
+                                         QMessageBox::Ok);
+                return;
+            }
+            double amount = QInputDialog::getDouble(nullptr, tr("Transfer - Azure Bank"),
+                                                    QString("Transfer Amount (to %1): ").arg(account->user().name.c_str()), 0, 0, (double) current.balance / 100, 2, &ok);
+            if (ok && amount > 0) {
+                current.transfer(amount * 100, *account);
+                fetchByUserId(user.id);
+            }
+        } else {
+            QMessageBox::information(nullptr, tr("Transfer - Azure Bank"),
+                                               tr("Receiver account not found."),
+                                               QMessageBox::Ok);
+        }
+    }
+}
+
+void AccountWidget::savingsAccountDeposit() {
+
+}
+
+void AccountWidget::savingsAccountWithdrawn() {
+
 }

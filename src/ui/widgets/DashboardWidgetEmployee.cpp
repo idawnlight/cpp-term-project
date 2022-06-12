@@ -10,7 +10,6 @@ DashboardWidgetEmployee::DashboardWidgetEmployee(QWidget *parent, const User &us
 //    auto welcomeMsg = new QLabel(QString("Welcome back, <strong>") + user.name.c_str() + "</strong>");
 //    mainLayout->addWidget(welcomeMsg);
 
-    auto tabWidget = new QTabWidget;
     refreshTable();
 
     auto usersTableSelection = usersTable->selectionModel();
@@ -40,6 +39,7 @@ DashboardWidgetEmployee::DashboardWidgetEmployee(QWidget *parent, const User &us
     connect(deleteButton, &QAbstractButton::clicked, this, &DashboardWidgetEmployee::deleteUser);
     connect(exportButton, &QAbstractButton::clicked, this, &DashboardWidgetEmployee::usersExport);
     connect(importButton, &QAbstractButton::clicked, this, &DashboardWidgetEmployee::usersImport);
+    connect(usersTable, &QTableView::doubleClicked, this, &DashboardWidgetEmployee::findAccount);
 
     usersLayout->addWidget(usersTable);
     usersLayout->addLayout(sideLayout);
@@ -125,6 +125,13 @@ void DashboardWidgetEmployee::deleteUser() {
         usersModel->fetchData();
         usersModelProxy->invalidate();
     }
+}
+
+void DashboardWidgetEmployee::findAccount(const QModelIndex & index) {
+    auto uid = usersModelProxy->data(index, Qt::EditRole).toInt();
+    accountFinder->finder->setText(QString::number(uid));
+    accountFinder->finderButton->click();
+    tabWidget->setCurrentIndex(1);
 }
 
 void DashboardWidgetEmployee::userChanged(User user) {

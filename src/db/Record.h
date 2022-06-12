@@ -19,13 +19,16 @@ class Record {
 public:
     int id;
     int amount;
-    std::string from;
-    std::string to;
+    int from;
+    int to;
     RecordType type;
     bool isRedeemed = false;
     double interestRate = 0;
     std::string remark;
     std::string time;
+
+    Record();
+    Record(RecordType type, int amount, int from = -1, int to = -1, double interestRate = 0);
 };
 
 

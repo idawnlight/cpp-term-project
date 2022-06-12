@@ -22,6 +22,7 @@ public slots:
     void userAdded(User user);
     void usersExport();
     void usersImport();
+    void findAccount(const QModelIndex & index);
 
 private:
     UsersModel* usersModel;
@@ -33,6 +34,7 @@ private:
     QPushButton* deleteButton = new QPushButton(tr("Delete"));
     QPushButton* importButton = new QPushButton(tr("Import"));
     QPushButton* exportButton = new QPushButton(tr("Export"));
+    QTabWidget* tabWidget = new QTabWidget;
     DashBoardFinder* accountFinder = new DashBoardFinder;
     DashBoardFinder* recordFinder = new DashBoardFinder;
     AccountWidget* accountWidget = new AccountWidget{nullptr, -1};

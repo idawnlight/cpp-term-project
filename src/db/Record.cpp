@@ -2,6 +2,7 @@
 // Created by 黎明余光 on 2022/6/7.
 //
 
+#include <QDateTime>
 #include "Record.h"
 
 std::string RecordTypeToString(RecordType type) {
@@ -29,4 +30,17 @@ std::unique_ptr<RecordType> RecordTypeFromString(const std::string& s) {
         return std::make_unique<RecordType>(RecordType::FixedDeposit);
     }
     return nullptr;
+}
+
+Record::Record() = default;
+
+Record::Record(RecordType type, int amount, int from, int to, double interestRate)
+    : amount(amount),
+      from(from),
+      to(to),
+      type(type),
+      interestRate(interestRate) {
+    id = -1;
+    QDateTime current = QDateTime::currentDateTime();
+    time = current.toString("yyyy.MM.dd hh:mm:ss").toStdString();
 }
