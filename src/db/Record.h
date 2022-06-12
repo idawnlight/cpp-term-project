@@ -14,7 +14,8 @@ enum RecordType {
 };
 
 std::string RecordTypeToString(RecordType type);
-std::unique_ptr<RecordType> RecordTypeFromString(const std::string& s);
+
+std::unique_ptr<RecordType> RecordTypeFromString(const std::string &s);
 
 class Record {
 public:
@@ -29,6 +30,7 @@ public:
     std::string time;
 
     Record();
+
     Record(RecordType type, int amount, int from = -1, int to = -1, double interestRate = 0);
 };
 

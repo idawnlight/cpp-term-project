@@ -14,6 +14,7 @@ public:
     std::string value;
 
     Config();
+
     Config(std::string key, std::string value);
 };
 

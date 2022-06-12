@@ -8,18 +8,20 @@
 #include <QtWidgets>
 
 class DashBoardFinder : public QWidget {
-    Q_OBJECT
+Q_OBJECT
 
 public:
     DashBoardFinder(QWidget *parent = nullptr);
 
-    QLineEdit* finder = new QLineEdit();
-    QPushButton* finderButton = new QPushButton(tr("Find"));
+    QLineEdit *finder = new QLineEdit();
+    QPushButton *finderButton = new QPushButton(tr("Find"));
 
 public slots:
+
     void click();
 
 signals:
+
     void find(int userId);
 };
 

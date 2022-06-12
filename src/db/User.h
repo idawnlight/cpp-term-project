@@ -15,7 +15,9 @@ public:
     int employeeId = -1;
 
     User();
-    User(std::string name, std::string idNumber, std::string phoneNumber, std::string password, bool isEmployee = false);
+
+    User(std::string name, std::string idNumber, std::string phoneNumber, std::string password,
+         bool isEmployee = false);
 };
 
 #endif //CPP_TERM_PROJECT_USER_H

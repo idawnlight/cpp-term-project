@@ -9,10 +9,10 @@ UserDialog::UserDialog(QWidget *parent, bool addUser) : QDialog(parent), type(Us
 }
 
 UserDialog::UserDialog(QWidget *parent, User tUser, bool isEditable)
-    : QDialog(parent),
-      user(tUser),
-      isEditable(isEditable),
-      type(UserDialogType::Edit) {
+        : QDialog(parent),
+          user(tUser),
+          isEditable(isEditable),
+          type(UserDialogType::Edit) {
     initDialog();
     setWindowTitle(tr("Edit User - Azure Bank"));
 

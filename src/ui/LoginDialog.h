@@ -8,21 +8,25 @@
 
 
 class LoginDialog : public QDialog {
-    Q_OBJECT
+Q_OBJECT
 public:
     explicit LoginDialog(QWidget *parent = nullptr);
 
 private:
     QLineEdit *nameText;
     QLineEdit *passwordText;
+
     void debugFillUser();
+
     void debugFillEmployee();
 
 signals:
+
 //    void loggedIn(User user);
     void userLoggedIn(User user);
 
 public slots:
+
     void accept() override;
 
 };

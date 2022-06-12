@@ -8,8 +8,7 @@
 #include <QtWidgets>
 
 RecordsModel::RecordsModel(QObject *parent)
-        : QAbstractTableModel(parent)
-{
+        : QAbstractTableModel(parent) {
     fetchData();
 }
 
@@ -18,18 +17,15 @@ RecordsModel::RecordsModel(QObject *parent)
 //{
 //}
 
-int RecordsModel::rowCount(const QModelIndex &parent) const
-{
+int RecordsModel::rowCount(const QModelIndex &parent) const {
     return parent.isValid() ? 0 : records.size();
 }
 
-int RecordsModel::columnCount(const QModelIndex &parent) const
-{
+int RecordsModel::columnCount(const QModelIndex &parent) const {
     return parent.isValid() ? 0 : 7;
 }
 
-QVariant RecordsModel::data(const QModelIndex &index, int role) const
-{
+QVariant RecordsModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid())
         return QVariant();
 
@@ -75,8 +71,7 @@ QVariant RecordsModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QVariant RecordsModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
+QVariant RecordsModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if (role != Qt::DisplayRole)
         return QVariant();
 
@@ -187,8 +182,14 @@ void RecordsModel::fetchDataByAccountId(int accountId) {
 
 void RecordsModel::fetchDataByUserId(int userId) {
     auto accounts = Db::getStorage().get_all<Account>(where(c(&Account::belong_to) == userId));
-    for (auto account : accounts) {
-        auto temp = Db::getStorage().get_all<Record>(where(c(&Record::from) == account.id or c(&Record::to) == account.id));
-        records.insert(records.end(), temp.begin(), temp.end());
+    for (auto account: accounts) {
+        if (account.type == AccountType::Current) {
+            records = Db::getStorage().get_all<Record>(
+                    where(c(&Record::from) == account.id or c(&Record::to) == account.id));
+        }
     }
+}
+
+void RecordsModel::fetchDepositsByAccountId(int accountId) {
+    records = Db::getStorage().get_all<Record>(where(c(&Record::to) == accountId));
 }

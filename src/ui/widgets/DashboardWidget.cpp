@@ -1,11 +1,12 @@
 #include "DashboardWidget.h"
 #include "UserDialog.h"
+#include "db/Db.h"
 #include <QtWidgets>
 
-DashboardWidget::DashboardWidget(QWidget *parent, const User& user)
-    : QWidget(parent),
-      user(user),
-      mainLayout(new QVBoxLayout) {
+DashboardWidget::DashboardWidget(QWidget *parent, const User &user)
+        : QWidget(parent),
+          user(user),
+          mainLayout(new QVBoxLayout) {
     auto headerLayout = new QHBoxLayout;
     auto welcomeMsg = new QLabel(QString("Welcome back, <strong>") + user.name.c_str() + "</strong>");
     headerLayout->addWidget(welcomeMsg);
@@ -21,5 +22,10 @@ DashboardWidget::DashboardWidget(QWidget *parent, const User& user)
 
 void DashboardWidget::userInfo() {
     UserDialog userDialog{this, user, false};
+    connect(&userDialog, &UserDialog::userChanged, this, &DashboardWidget::userChanged);
     userDialog.exec();
+}
+
+void DashboardWidget::userChanged(User user) {
+    Db::getStorage().update(user);
 }

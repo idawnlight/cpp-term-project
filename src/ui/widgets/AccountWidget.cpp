@@ -5,18 +5,20 @@
 #include "AccountWidget.h"
 #include "db/Db.h"
 
-AccountWidget::AccountWidget(QWidget *parent, int userId, bool isEmployee) : QGridLayout(parent), isEmployee(isEmployee) {
-    initWidget(false);
+AccountWidget::AccountWidget(QWidget *parent, int userId, bool isEmployee) : QGridLayout(parent),
+                                                                             isEmployee(isEmployee) {
+    initWidget();
     try {
         user = Db::getStorage().get<User>(userId);
         fetchByUserId(user.id);
     } catch (std::exception e) {
         user = User();
-        qDebug() << user.id;
+//        qDebug() << user.id;
     }
 }
 
-AccountWidget::AccountWidget(QWidget *parent, User user, bool isEmployee) : QGridLayout(parent), user(user), isEmployee(isEmployee) {
+AccountWidget::AccountWidget(QWidget *parent, User user, bool isEmployee) : QGridLayout(parent), user(user),
+                                                                            isEmployee(isEmployee) {
     initWidget();
     fetchByUserId(user.id);
 }
@@ -27,7 +29,7 @@ void AccountWidget::fetchByUserId(int userId) {
         savings = Account();
         user = Db::getStorage().get<User>(userId);
         auto accounts = Db::getStorage().get_all<Account>(where(c(&Account::belong_to) == user.id));
-        for (auto account : accounts) {
+        for (auto account: accounts) {
             if (account.type == AccountType::Current) {
                 current = account;
             } else if (account.type == AccountType::Savings) {
@@ -36,12 +38,12 @@ void AccountWidget::fetchByUserId(int userId) {
         }
     } catch (std::exception e) {
         user = User();
-        qDebug() << user.id;
+//        qDebug() << user.id;
     }
     refreshWidget();
 }
 
-void AccountWidget::initWidget(bool showNotFound) {
+void AccountWidget::initWidget() {
     currentLayout->setAlignment(Qt::AlignTop);
     currentLabel->setAlignment(Qt::AlignTop);
     currentContent->setAlignment(Qt::AlignTop);
@@ -76,9 +78,13 @@ void AccountWidget::initWidget(bool showNotFound) {
     openSavingsButton->setVisible(false);
     closeSavingsButton->setVisible(false);
 
-    addWidget(topLabel, 0, 0, 1, 2);
-    addLayout(currentLayout, 1, 0);
-    addLayout(savingsLayout, 1, 1);
+    addWidget(topLabel, 0, 1, 1, 2);
+    addLayout(currentLayout, 1, 1);
+    addLayout(savingsLayout, 1, 2);
+    setColumnStretch(0, 1);
+    setColumnStretch(1, 1);
+    setColumnStretch(2, 1);
+    setColumnStretch(3, 1);
 
     connect(openCurrentButton, &QAbstractButton::clicked, this, &AccountWidget::openCurrentAccount);
     connect(closeCurrentButton, &QAbstractButton::clicked, this, &AccountWidget::closeCurrentAccount);
@@ -124,11 +130,11 @@ void AccountWidget::refreshWidget() {
         }
         if (savings.id == -1) {
             savingsContent->setText("Savings Account not opened.");
-            openSavingsButton->setVisible(true);
-            closeSavingsButton->setVisible(false);
+            savingsDepositButton->setVisible(false);
+            savingsRedeemButton->setVisible(false);
             if (isEmployee) {
-                savingsDepositButton->setVisible(false);
-                savingsRedeemButton->setVisible(false);
+                openSavingsButton->setVisible(true);
+                closeSavingsButton->setVisible(false);
             }
         } else {
             savingsContent->setAccount(savings);
@@ -184,8 +190,8 @@ void AccountWidget::openSavingsAccount() {
 void AccountWidget::closeSavingsAccount() {
     if (savings.balance != 0) {
         QMessageBox::information(nullptr, tr("Close Account - Azure Bank"),
-                             tr("You can't close an account with balance."),
-                             QMessageBox::Ok);
+                                 tr("You can't close an account with balance."),
+                                 QMessageBox::Ok);
         return;
     }
     int ret = QMessageBox::warning(nullptr, tr("Close Account - Azure Bank"),
@@ -201,10 +207,11 @@ void AccountWidget::closeSavingsAccount() {
 void AccountWidget::currentAccountDeposit() {
     bool ok;
     double amount = QInputDialog::getDouble(nullptr, tr("Deposit - Azure Bank"),
-                                         tr("Deposit Amount: "), 0, 0, 2147483647, 2, &ok);
+                                            tr("Deposit Amount: "), 0, 0, 2147483647, 2, &ok);
     if (ok && amount > 0) {
         current.deposit(amount * 100);
         fetchByUserId(user.id);
+        emit newRecord();
     }
 }
 
@@ -215,13 +222,14 @@ void AccountWidget::currentAccountWithdrawn() {
     if (ok && amount > 0) {
         current.withdrawn(amount * 100);
         fetchByUserId(user.id);
+        emit newRecord();
     }
 }
 
 void AccountWidget::currentAccountTransfer() {
     bool ok;
     double receiver = QInputDialog::getInt(nullptr, tr("Transfer - Azure Bank"),
-                                            tr("Receiver Account ID: "), 0, 0, (double) current.balance / 100, 1, &ok);
+                                           tr("Receiver Account ID: "), 0, 0, (double) current.balance / 100, 1, &ok);
     if (ok && receiver != current.id) {
         if (auto account = Db::getStorage().get_pointer<Account>(receiver)) {
             if (account->type == AccountType::Savings) {
@@ -231,15 +239,18 @@ void AccountWidget::currentAccountTransfer() {
                 return;
             }
             double amount = QInputDialog::getDouble(nullptr, tr("Transfer - Azure Bank"),
-                                                    QString("Transfer Amount (to %1): ").arg(account->user().name.c_str()), 0, 0, (double) current.balance / 100, 2, &ok);
+                                                    QString("Transfer Amount (to %1): ").arg(
+                                                            account->user().name.c_str()), 0, 0,
+                                                    (double) current.balance / 100, 2, &ok);
             if (ok && amount > 0) {
                 current.transfer(amount * 100, *account);
                 fetchByUserId(user.id);
+                emit newRecord();
             }
         } else {
             QMessageBox::information(nullptr, tr("Transfer - Azure Bank"),
-                                               tr("Receiver account not found."),
-                                               QMessageBox::Ok);
+                                     tr("Receiver account not found."),
+                                     QMessageBox::Ok);
         }
     }
 }
@@ -248,10 +259,13 @@ void AccountWidget::savingsAccountDeposit() {
     auto interestRate = Db::getStorage().get_all<Config>(where(c(&Config::key) == "interestRate")).front();
     bool ok;
     double amount = QInputDialog::getDouble(nullptr, tr("Fixed Deposit - Azure Bank"),
-                                            QString("Fixed Deposit Amount (current interest rate %1): ").arg(interestRate.value.c_str()), 0, 0, (double) current.balance / 100, 2, &ok);
+                                            QString("Fixed Deposit Amount (current interest rate %1): ").arg(
+                                                    interestRate.value.c_str()), 0, 0, (double) current.balance / 100,
+                                            2, &ok);
     if (ok && amount > 0) {
         savings.deposit(amount * 100, current, std::stod(interestRate.value));
         fetchByUserId(user.id);
+        emit newRecord();
     }
 }
 

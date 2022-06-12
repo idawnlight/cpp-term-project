@@ -15,16 +15,20 @@ class AccountInfoLabel : public QLabel {
 Q_OBJECT
 
 public:
-    explicit AccountInfoLabel(QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
+    explicit AccountInfoLabel(QWidget *parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
+
     ~AccountInfoLabel();
+
     void setAccount(Account account);
 
 signals:
+
     void doubleClicked(int accountId);
 
 protected:
     Account account;
     QTimer timer;
+
     void mouseReleaseEvent(QMouseEvent *) override;
 
     void timerEvent(QTimerEvent *) override;

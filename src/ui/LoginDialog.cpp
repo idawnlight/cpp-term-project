@@ -69,7 +69,9 @@ LoginDialog::LoginDialog(QWidget *parent)
 void LoginDialog::accept() {
 // TODO: real login
     try {
-        auto users = Db::getStorage().get_all<User>(where(c(&User::phoneNumber) == nameText->text().toLocal8Bit().constData() or c(&User::idNumber) == nameText->text().toLocal8Bit().constData()));
+        auto users = Db::getStorage().get_all<User>(
+                where(c(&User::phoneNumber) == nameText->text().toLocal8Bit().constData() or
+                      c(&User::idNumber) == nameText->text().toLocal8Bit().constData()));
         if (users.empty()) {
             throw std::invalid_argument("user not found");
         }
@@ -80,7 +82,7 @@ void LoginDialog::accept() {
         } else {
             throw std::invalid_argument("wrong password");
         }
-    } catch (const std::exception& e) {
+    } catch (const std::exception &e) {
         passwordText->clear();
         QMessageBox msgBox;
         msgBox.setIcon(QMessageBox::Warning);

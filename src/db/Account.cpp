@@ -12,7 +12,7 @@ std::string AccountTypeToString(AccountType type) {
     throw std::domain_error("Invalid AccountType enum");
 }
 
-std::unique_ptr<AccountType> AccountTypeFromString(const std::string& s) {
+std::unique_ptr<AccountType> AccountTypeFromString(const std::string &s) {
     if (s == "current") {
         return std::make_unique<AccountType>(AccountType::Current);
     } else if (s == "savings") {
@@ -32,7 +32,8 @@ Account::Account(int belong_to, AccountType type) : belong_to(belong_to), type(t
 QString Account::toString() {
     QString msg;
     msg.append(QString("Account ID: <strong>") + QString::number(id) + QString("</strong>"));
-    msg.append(QString("<br>Balance: <strong>") + QString::number((double) balance / 100, 'f', 2) + QString("</strong>"));
+    msg.append(
+            QString("<br>Balance: <strong>") + QString::number((double) balance / 100, 'f', 2) + QString("</strong>"));
     return msg;
 }
 

@@ -14,7 +14,8 @@ enum AccountType {
 };
 
 std::string AccountTypeToString(AccountType type);
-std::unique_ptr<AccountType> AccountTypeFromString(const std::string& s);
+
+std::unique_ptr<AccountType> AccountTypeFromString(const std::string &s);
 
 class Account {
 public:
@@ -24,12 +25,19 @@ public:
     AccountType type;
 
     Account();
+
     Account(int belong_to, AccountType type);
+
     QString toString();
+
     void deposit(int amount, Account from = Account{}, double interestRate = 0);
+
     void withdrawn(int amount);
+
     void transfer(int amount, Account receiver);
+
     void redeem(Record record, int interest);
+
     User user();
 };
 

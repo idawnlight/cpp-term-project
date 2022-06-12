@@ -22,9 +22,11 @@ namespace sqlite_orm {
      *  or `INTEGER` (int/long/short etc) respectively.
      */
     template<>
-    struct type_printer<AccountType> : public text_printer {};
+    struct type_printer<AccountType> : public text_printer {
+    };
     template<>
-    struct type_printer<RecordType> : public text_printer {};
+    struct type_printer<RecordType> : public text_printer {
+    };
 
     /**
      *  This is a binder class. It is used to bind c++ values to sqlite queries.
@@ -36,15 +38,16 @@ namespace sqlite_orm {
     template<>
     struct statement_binder<AccountType> {
 
-        int bind(sqlite3_stmt* stmt, int index, const AccountType& value) {
+        int bind(sqlite3_stmt *stmt, int index, const AccountType &value) {
             return statement_binder<std::string>().bind(stmt, index, AccountTypeToString(value));
             //  or return sqlite3_bind_text(stmt, index++, AccountTypeToString(value).c_str(), -1, SQLITE_TRANSIENT);
         }
     };
+
     template<>
     struct statement_binder<RecordType> {
 
-        int bind(sqlite3_stmt* stmt, int index, const RecordType& value) {
+        int bind(sqlite3_stmt *stmt, int index, const RecordType &value) {
             return statement_binder<std::string>().bind(stmt, index, RecordTypeToString(value));
             //  or return sqlite3_bind_text(stmt, index++, RecordTypeToString(value).c_str(), -1, SQLITE_TRANSIENT);
         }
@@ -56,13 +59,14 @@ namespace sqlite_orm {
      */
     template<>
     struct field_printer<AccountType> {
-        std::string operator()(const AccountType& t) const {
+        std::string operator()(const AccountType &t) const {
             return AccountTypeToString(t);
         }
     };
+
     template<>
     struct field_printer<RecordType> {
-        std::string operator()(const RecordType& t) const {
+        std::string operator()(const RecordType &t) const {
             return RecordTypeToString(t);
         }
     };
@@ -75,7 +79,7 @@ namespace sqlite_orm {
      */
     template<>
     struct row_extractor<AccountType> {
-        AccountType extract(const char* row_value) {
+        AccountType extract(const char *row_value) {
             if (auto AccountType = AccountTypeFromString(row_value)) {
                 return *AccountType;
             } else {
@@ -83,14 +87,15 @@ namespace sqlite_orm {
             }
         }
 
-        AccountType extract(sqlite3_stmt* stmt, int columnIndex) {
+        AccountType extract(sqlite3_stmt *stmt, int columnIndex) {
             auto str = sqlite3_column_text(stmt, columnIndex);
-            return this->extract((const char*)str);
+            return this->extract((const char *) str);
         }
     };
+
     template<>
     struct row_extractor<RecordType> {
-        RecordType extract(const char* row_value) {
+        RecordType extract(const char *row_value) {
             if (auto RecordType = RecordTypeFromString(row_value)) {
                 return *RecordType;
             } else {
@@ -98,14 +103,14 @@ namespace sqlite_orm {
             }
         }
 
-        RecordType extract(sqlite3_stmt* stmt, int columnIndex) {
+        RecordType extract(sqlite3_stmt *stmt, int columnIndex) {
             auto str = sqlite3_column_text(stmt, columnIndex);
-            return this->extract((const char*)str);
+            return this->extract((const char *) str);
         }
     };
 }
 
-static const char* DB_FILE = "db.sqlite";
+static const char *DB_FILE = "db.sqlite";
 
 class Db {
 public:

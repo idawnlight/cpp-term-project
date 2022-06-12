@@ -21,7 +21,7 @@ std::string RecordTypeToString(RecordType type) {
     throw std::domain_error("Invalid RecordType enum");
 }
 
-std::unique_ptr<RecordType> RecordTypeFromString(const std::string& s) {
+std::unique_ptr<RecordType> RecordTypeFromString(const std::string &s) {
     if (s == "deposit") {
         return std::make_unique<RecordType>(RecordType::Deposit);
     } else if (s == "withdrawn") {
@@ -39,11 +39,11 @@ std::unique_ptr<RecordType> RecordTypeFromString(const std::string& s) {
 Record::Record() = default;
 
 Record::Record(RecordType type, int amount, int from, int to, double interestRate)
-    : amount(amount),
-      from(from),
-      to(to),
-      type(type),
-      interestRate(interestRate) {
+        : amount(amount),
+          from(from),
+          to(to),
+          type(type),
+          interestRate(interestRate) {
     id = -1;
     QDateTime current = QDateTime::currentDateTime();
     time = current.toString("yyyy.MM.dd hh:mm:ss").toStdString();

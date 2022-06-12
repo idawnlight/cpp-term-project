@@ -8,28 +8,23 @@
 #include <QtWidgets>
 
 UsersModel::UsersModel(QObject *parent)
-        : QAbstractTableModel(parent)
-{
+        : QAbstractTableModel(parent) {
     fetchData();
 }
 
 UsersModel::UsersModel(std::vector<User> users, QObject *parent)
-        : QAbstractTableModel(parent), users(users)
-{
+        : QAbstractTableModel(parent), users(users) {
 }
 
-int UsersModel::rowCount(const QModelIndex &parent) const
-{
+int UsersModel::rowCount(const QModelIndex &parent) const {
     return parent.isValid() ? 0 : users.size();
 }
 
-int UsersModel::columnCount(const QModelIndex &parent) const
-{
+int UsersModel::columnCount(const QModelIndex &parent) const {
     return parent.isValid() ? 0 : 4;
 }
 
-QVariant UsersModel::data(const QModelIndex &index, int role) const
-{
+QVariant UsersModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid())
         return QVariant();
 
@@ -57,8 +52,7 @@ QVariant UsersModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QVariant UsersModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
+QVariant UsersModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if (role != Qt::DisplayRole)
         return QVariant();
 

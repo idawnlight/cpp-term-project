@@ -1,6 +1,7 @@
 #include "Dashboard.h"
-#include "widgets/DashboardWidgetEmployee.h"
 #include "ui/widgets/UserDialog.h"
+#include "widgets/DashboardWidgetEmployee.h"
+#include "ui/widgets/DashboardWidgetUser.h"
 
 #include <utility>
 #include <QtWidgets>
@@ -13,6 +14,8 @@ void Dashboard::init() {
     setWindowTitle(isEmployee ? "Employee - Azure Bank" : "User - Azure Bank");
     if (isEmployee) {
         mainWidget = new DashboardWidgetEmployee(this, user);
+    } else {
+        mainWidget = new DashboardWidgetUser(this, user);
     }
     setCentralWidget(mainWidget);
 }

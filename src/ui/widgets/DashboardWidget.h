@@ -6,17 +6,18 @@
 #include "db/User.h"
 
 class DashboardWidget : public QWidget {
-    Q_OBJECT
+Q_OBJECT
 
 public:
-    DashboardWidget(QWidget *parent = nullptr, const User& user = {});
+    DashboardWidget(QWidget *parent = nullptr, const User &user = {});
 
 public slots:
     void userInfo();
+    virtual void userChanged(User user);
 
 protected:
     User user;
-    QVBoxLayout* mainLayout;
+    QVBoxLayout *mainLayout;
 };
 
 
