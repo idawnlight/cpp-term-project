@@ -86,9 +86,10 @@ void AccountWidget::initWidget(bool showNotFound) {
     connect(currentWithdrawnButton, &QAbstractButton::clicked, this, &AccountWidget::currentAccountWithdrawn);
     connect(currentTransferButton, &QAbstractButton::clicked, this, &AccountWidget::currentAccountTransfer);
 
-
     connect(openSavingsButton, &QAbstractButton::clicked, this, &AccountWidget::openSavingsAccount);
     connect(closeSavingsButton, &QAbstractButton::clicked, this, &AccountWidget::closeSavingsAccount);
+    connect(savingsDepositButton, &QAbstractButton::clicked, this, &AccountWidget::savingsAccountDeposit);
+    connect(savingsRedeemButton, &QAbstractButton::clicked, this, &AccountWidget::savingsAccountRedeem);
 }
 
 void AccountWidget::refreshWidget() {
@@ -154,6 +155,12 @@ void AccountWidget::closeCurrentAccount() {
     if (current.balance != 0) {
         QMessageBox::information(nullptr, tr("Close Account - Azure Bank"),
                                  tr("You can't close an account with balance."),
+                                 QMessageBox::Ok);
+        return;
+    }
+    if (savings.id != -1) {
+        QMessageBox::information(nullptr, tr("Close Account - Azure Bank"),
+                                 tr("You can't close current account if savings account exists."),
                                  QMessageBox::Ok);
         return;
     }
@@ -238,9 +245,24 @@ void AccountWidget::currentAccountTransfer() {
 }
 
 void AccountWidget::savingsAccountDeposit() {
-
+    auto interestRate = Db::getStorage().get_all<Config>(where(c(&Config::key) == "interestRate")).front();
+    bool ok;
+    double amount = QInputDialog::getDouble(nullptr, tr("Fixed Deposit - Azure Bank"),
+                                            QString("Fixed Deposit Amount (current interest rate %1): ").arg(interestRate.value.c_str()), 0, 0, (double) current.balance / 100, 2, &ok);
+    if (ok && amount > 0) {
+        savings.deposit(amount * 100, current, std::stod(interestRate.value));
+        fetchByUserId(user.id);
+    }
 }
 
-void AccountWidget::savingsAccountWithdrawn() {
+void AccountWidget::savingsAccountRedeem() {
+    emit savingsRecordsFind(savings.id);
+}
 
+Account AccountWidget::getSavingsAccount() {
+    return savings;
+}
+
+User AccountWidget::getUser() {
+    return user;
 }

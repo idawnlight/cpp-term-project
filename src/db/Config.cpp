@@ -3,3 +3,9 @@
 //
 
 #include "Config.h"
+
+Config::Config() = default;
+
+Config::Config(std::string key, std::string value) : id(-1), key(key), value(value) {
+
+}

@@ -15,6 +15,8 @@ std::string RecordTypeToString(RecordType type) {
             return "transfer";
         case RecordType::FixedDeposit:
             return "fixed_deposit";
+        case RecordType::RedeemFixedDeposit:
+            return "redeem_fixed_deposit";
     }
     throw std::domain_error("Invalid RecordType enum");
 }
@@ -28,6 +30,8 @@ std::unique_ptr<RecordType> RecordTypeFromString(const std::string& s) {
         return std::make_unique<RecordType>(RecordType::Transfer);
     } else if (s == "fixed_deposit") {
         return std::make_unique<RecordType>(RecordType::FixedDeposit);
+    } else if (s == "redeem_fixed_deposit") {
+        return std::make_unique<RecordType>(RecordType::RedeemFixedDeposit);
     }
     return nullptr;
 }

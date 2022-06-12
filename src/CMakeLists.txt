@@ -27,6 +27,8 @@ set(PROJECT_SOURCES
         ui/widgets/DashboardWidgetEmployee.h
         ui/widgets/UsersModel.cpp
         ui/widgets/UsersModel.h
+        ui/widgets/RecordsModel.cpp
+        ui/widgets/RecordsModel.h
         ui/widgets/UserDialog.cpp
         ui/widgets/UserDialog.h
         ui/widgets/DashBoardFinder.cpp

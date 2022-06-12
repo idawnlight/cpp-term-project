@@ -36,18 +36,25 @@ QString Account::toString() {
     return msg;
 }
 
-void Account::deposit(int amount) {
+void Account::deposit(int amount, Account from, double interestRate) {
     if (type == AccountType::Current) {
         Record newRecord{RecordType::Deposit, amount, -1, id};
         Db::getStorage().insert(newRecord);
         balance += amount;
         Db::getStorage().update(*this);
+    } else {
+        Record newRecord{RecordType::FixedDeposit, amount, from.id, id, interestRate};
+        Db::getStorage().insert(newRecord);
+        balance += amount;
+        from.balance -= amount;
+        Db::getStorage().update(*this);
+        Db::getStorage().update(from);
     }
 }
 
 void Account::withdrawn(int amount) {
     if (type == AccountType::Current) {
-        Record newRecord{RecordType::Withdrawn, amount, -1, id};
+        Record newRecord{RecordType::Withdrawn, amount, id, -1};
         Db::getStorage().insert(newRecord);
         balance -= amount;
         Db::getStorage().update(*this);
@@ -61,6 +68,21 @@ void Account::transfer(int amount, Account receiver) {
     receiver.balance += amount;
     Db::getStorage().update(*this);
     Db::getStorage().update(receiver);
+}
+
+void Account::redeem(Record record, int interest) {
+    Record redeemRecord{RecordType::RedeemFixedDeposit, record.amount, record.to, record.from};
+    Record interestRecord{RecordType::RedeemFixedDeposit, interest, -1, record.from};
+    auto current = Db::getStorage().get<Account>(record.from);
+    balance -= record.amount;
+    current.balance += record.amount;
+    current.balance += interest;
+    Db::getStorage().update(*this);
+    Db::getStorage().update(current);
+    record.isRedeemed = true;
+    Db::getStorage().update(record);
+    Db::getStorage().insert(redeemRecord);
+    Db::getStorage().insert(interestRecord);
 }
 
 User Account::user() {

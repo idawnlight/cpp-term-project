@@ -3,6 +3,7 @@
 #include <string>
 #include <QString>
 #include "User.h"
+#include "Record.h"
 
 #ifndef CPP_TERM_PROJECT_ACCOUNT_H
 #define CPP_TERM_PROJECT_ACCOUNT_H
@@ -25,9 +26,10 @@ public:
     Account();
     Account(int belong_to, AccountType type);
     QString toString();
-    void deposit(int amount);
+    void deposit(int amount, Account from = Account{}, double interestRate = 0);
     void withdrawn(int amount);
     void transfer(int amount, Account receiver);
+    void redeem(Record record, int interest);
     User user();
 };
 

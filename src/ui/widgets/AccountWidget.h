@@ -17,6 +17,12 @@ public:
     AccountWidget(QWidget *parent = nullptr, int userId = -1, bool isEmployee = true);
     AccountWidget(QWidget *parent = nullptr, User user = {}, bool isEmployee = false);
 
+    AccountInfoLabel* currentContent = new AccountInfoLabel();
+    AccountInfoLabel* savingsContent = new AccountInfoLabel();
+
+    Account getSavingsAccount();
+    User getUser();
+
 public slots:
     void fetchByUserId(int userId);
     void openCurrentAccount();
@@ -25,10 +31,13 @@ public slots:
     void currentAccountWithdrawn();
     void currentAccountTransfer();
     void savingsAccountDeposit();
-    void savingsAccountWithdrawn();
+    void savingsAccountRedeem();
 
     void openSavingsAccount();
     void closeSavingsAccount();
+
+signals:
+    void savingsRecordsFind(int accountId);
 
 private:
     User user;
@@ -39,9 +48,7 @@ private:
     QVBoxLayout* currentLayout = new QVBoxLayout;
     QVBoxLayout* savingsLayout = new QVBoxLayout;
     QLabel* currentLabel = new QLabel("<h2>Current</h2>");
-    AccountInfoLabel* currentContent = new AccountInfoLabel();
     QLabel* savingsLabel = new QLabel("<h2>Savings</h2>");
-    AccountInfoLabel* savingsContent = new AccountInfoLabel();
 
     QPushButton* currentDepositButton = new QPushButton(tr("Deposit"));
     QPushButton* currentWithdrawnButton = new QPushButton(tr("Withdrawn"));

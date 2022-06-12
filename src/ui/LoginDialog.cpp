@@ -60,6 +60,10 @@ LoginDialog::LoginDialog(QWidget *parent)
         User temp{"Light Admin", "440102198101021230", "13700000001", Utility::password_hash("password"), true};
         Db::getStorage().insert(temp);
     }
+    if (Db::getStorage().count<Config>(where(c(&Config::key) == "interestRate")) == 0) {
+        Config temp{"interestRate", "3.00"};
+        Db::getStorage().insert(temp);
+    }
 }
 
 void LoginDialog::accept() {

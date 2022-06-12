@@ -9,7 +9,8 @@ enum RecordType {
     Deposit,
     Withdrawn,
     Transfer,
-    FixedDeposit
+    FixedDeposit,
+    RedeemFixedDeposit
 };
 
 std::string RecordTypeToString(RecordType type);

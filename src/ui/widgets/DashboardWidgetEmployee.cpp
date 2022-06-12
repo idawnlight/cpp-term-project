@@ -5,12 +5,14 @@
 DashboardWidgetEmployee::DashboardWidgetEmployee(QWidget *parent, const User &user)
     : DashboardWidget(parent, user),
       usersModel(new UsersModel),
+      recordsModel(new RecordsModel),
       usersTable(new QTableView),
-      accountsTable(new QTableView) {
+      recordsTable(new QTableView) {
 //    auto welcomeMsg = new QLabel(QString("Welcome back, <strong>") + user.name.c_str() + "</strong>");
 //    mainLayout->addWidget(welcomeMsg);
 
-    refreshTable();
+    refreshUsersTable();
+    refreshRecordsTable();
 
     auto usersTableSelection = usersTable->selectionModel();
     connect(usersTableSelection, &QItemSelectionModel::selectionChanged, this, &DashboardWidgetEmployee::activateButtons);
@@ -40,6 +42,9 @@ DashboardWidgetEmployee::DashboardWidgetEmployee(QWidget *parent, const User &us
     connect(exportButton, &QAbstractButton::clicked, this, &DashboardWidgetEmployee::usersExport);
     connect(importButton, &QAbstractButton::clicked, this, &DashboardWidgetEmployee::usersImport);
     connect(usersTable, &QTableView::doubleClicked, this, &DashboardWidgetEmployee::findAccount);
+    connect(accountWidget->currentContent, &AccountInfoLabel::doubleClicked, this, &DashboardWidgetEmployee::findRecords);
+    connect(accountWidget->savingsContent, &AccountInfoLabel::doubleClicked, this, &DashboardWidgetEmployee::findRecords);
+    connect(accountWidget, &AccountWidget::savingsRecordsFind, this, &DashboardWidgetEmployee::findRecords);
 
     usersLayout->addWidget(usersTable);
     usersLayout->addLayout(sideLayout);
@@ -55,16 +60,46 @@ DashboardWidgetEmployee::DashboardWidgetEmployee(QWidget *parent, const User &us
     accountLayout->addLayout(accountWidget);
 
     connect(accountFinder, &DashBoardFinder::find, accountWidget, &AccountWidget::fetchByUserId);
+    connect(recordFinder, &DashBoardFinder::find, this, &DashboardWidgetEmployee::fetchRecordsByAccountId);
 
     tabWidget->addTab(accountTab, "Account");
 
     auto recordTab = new QWidget;
     auto recordLayout = new QVBoxLayout;
+    auto recordTableLayout = new QHBoxLayout;
     recordTab->setLayout(recordLayout);
+    recordFinder->finder->setPlaceholderText("Account ID...");
     recordLayout->addWidget(recordFinder);
+
+    auto recordsTableSelection = recordsTable->selectionModel();
+    connect(recordsTableSelection, &QItemSelectionModel::selectionChanged, this, &DashboardWidgetEmployee::activateRedeemButton);
+    connect(redeemButton, &QAbstractButton::clicked, this, &DashboardWidgetEmployee::redeemFixedDeposit);
+
+
+    auto recordsSideLayout = new QGridLayout;
+    auto recordsSideTopLayout = new QVBoxLayout;
+    recordsSideTopLayout->setAlignment(Qt::AlignTop);
+    redeemButton->setEnabled(false);
+    recordsSideTopLayout->addWidget(redeemButton);
+    recordsSideLayout->addLayout(recordsSideTopLayout, 0, 0, Qt::AlignTop);
+
+    recordTableLayout->addWidget(recordsTable);
+    recordTableLayout->addLayout(recordsSideLayout);
+    recordLayout->addLayout(recordTableLayout);
     recordLayout->setAlignment(Qt::AlignTop | Qt::AlignHCenter);
 
     tabWidget->addTab(recordTab, "Records");
+
+    auto configTab = new QWidget;
+    auto configLayout = new QVBoxLayout;
+    configLayout->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    auto interestRate = Db::getStorage().get_all<Config>(where(c(&Config::key) == "interestRate"));
+    interestRateLabel->setText(QString("Current interest rate for fixed deposit: %1").arg(interestRate.front().value.c_str()));
+    configLayout->addWidget(interestRateLabel);
+    configLayout->addWidget(interestButton);
+    configTab->setLayout(configLayout);
+    connect(interestButton, &QAbstractButton::clicked, this, &DashboardWidgetEmployee::setInterestRate);
+    tabWidget->addTab(configTab, "Config");
 
     mainLayout->addWidget(tabWidget);
 
@@ -73,7 +108,7 @@ DashboardWidgetEmployee::DashboardWidgetEmployee(QWidget *parent, const User &us
     mainLayout->addWidget(copyright);
 }
 
-void DashboardWidgetEmployee::refreshTable() {
+void DashboardWidgetEmployee::refreshUsersTable() {
     usersModelProxy->setSourceModel(usersModel);
     usersTable->setModel(usersModelProxy);
     usersTable->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -86,9 +121,35 @@ void DashboardWidgetEmployee::refreshTable() {
     usersTable->setMinimumWidth(600);
 }
 
+void DashboardWidgetEmployee::refreshRecordsTable() {
+    recordsModelProxy->setSourceModel(recordsModel);
+    recordsTable->setModel(recordsModelProxy);
+    recordsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+//    recordsTable->horizontalHeader()->setSectionResizeMode(7, QHeaderView::Stretch);
+    recordsTable->verticalHeader()->hide();
+    recordsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    recordsTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    recordsTable->setSortingEnabled(true);
+    recordsTable->sortByColumn(0, Qt::DescendingOrder);
+    recordsTable->setMinimumWidth(600);
+}
+
 void DashboardWidgetEmployee::activateButtons() {
     editButton->setEnabled(true);
     deleteButton->setEnabled(true);
+}
+
+void DashboardWidgetEmployee::activateRedeemButton(const QItemSelection &selected, const QItemSelection &deselected) {
+    auto recordsTableSelection = recordsTable->selectionModel();
+    auto selectedRows = recordsTableSelection->selectedRows();
+    auto row = selectedRows.front();
+    auto recordId = recordsModelProxy->data(row, Qt::EditRole).toInt();
+    auto record = Db::getStorage().get<Record>(recordId);
+    if (record.type == RecordType::FixedDeposit && !record.isRedeemed) {
+        redeemButton->setEnabled(true);
+    } else {
+        redeemButton->setEnabled(false);
+    }
 }
 
 void DashboardWidgetEmployee::addUser() {
@@ -134,6 +195,12 @@ void DashboardWidgetEmployee::findAccount(const QModelIndex & index) {
     tabWidget->setCurrentIndex(1);
 }
 
+void DashboardWidgetEmployee::findRecords(int accountId) {
+    recordFinder->finder->setText(QString::number(accountId));
+    recordFinder->finderButton->click();
+    tabWidget->setCurrentIndex(2);
+}
+
 void DashboardWidgetEmployee::userChanged(User user) {
 //    std::vector<User> temp;
 //    temp.push_back(User {"Light", "440102198001021230", "13700000000", "password"});
@@ -172,5 +239,49 @@ void DashboardWidgetEmployee::usersImport() {
             QFile::copy(fileName, QString(DB_FILE));
             exit(0);
         }
+    }
+}
+
+void DashboardWidgetEmployee::fetchRecordsByAccountId(int accountId) {
+//    qDebug() << accountId;
+    if (accountId == 0) {
+        recordsModel->fetchData();
+        recordsModelProxy->invalidate();
+    } else {
+        recordsModel->fetchDataByAccountId(accountId);
+        recordsModelProxy->invalidate();
+    }
+}
+
+void DashboardWidgetEmployee::setInterestRate() {
+    bool ok;
+    auto interestRate = Db::getStorage().get_all<Config>(where(c(&Config::key) == "interestRate")).front();
+    double rate = QInputDialog::getDouble(nullptr, tr("Set Interest Rate - Azure Bank"),
+                                            tr("New Interest Rate (won't affect existing fixed deposit): "), std::stod(interestRate.value), 0, 2147483647, 2, &ok);
+    if (rate > 0 && ok) {
+        interestRate.value = QString::number(rate, 'f', 2).toStdString();
+        Db::getStorage().update(interestRate);
+        interestRateLabel->setText(QString("Current interest rate for fixed deposit: %1").arg(interestRate.value.c_str()));
+    }
+}
+
+void DashboardWidgetEmployee::redeemFixedDeposit() {
+    auto recordsTableSelection = recordsTable->selectionModel();
+    auto selectedRows = recordsTableSelection->selectedRows();
+    auto row = selectedRows.front();
+    auto recordId = recordsModelProxy->data(row, Qt::EditRole).toInt();
+    auto record = Db::getStorage().get<Record>(recordId);
+    auto start = QDateTime::fromString(record.time.c_str(), "yyyy.MM.dd hh:mm:ss");
+    auto end = QDateTime::currentDateTime();
+    int seconds = start.secsTo(end);
+    int interest = (double) record.amount * record.interestRate / 100 * ((double) seconds / 31536000);
+    qDebug() << interest;
+    int ret = QMessageBox::information(nullptr, tr("Redeem - Azure Bank"),
+                                   QString("After redeem you will get $%1 of interest, continue?").arg(QString::number((double) interest / 100, 'f', 2)),
+                                   QMessageBox::Yes | QMessageBox::Cancel);
+    if (ret == QMessageBox::Yes) {
+        accountWidget->getSavingsAccount().redeem(record, interest);
+        fetchRecordsByAccountId(record.to);
+        accountWidget->fetchByUserId(accountWidget->getUser().id);
     }
 }

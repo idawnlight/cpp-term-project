@@ -2,18 +2,19 @@
 // Created by 黎明余光 on 2022/6/10.
 //
 
-#ifndef CPP_TERM_PROJECT_USERSMODEL_H
-#define CPP_TERM_PROJECT_USERSMODEL_H
+#ifndef CPP_TERM_PROJECT_RECORDSMODEL_H
+#define CPP_TERM_PROJECT_RECORDSMODEL_H
 
 #include <QAbstractTableModel>
 #include "db/User.h"
+#include "db/Record.h"
 
-class UsersModel : public QAbstractTableModel {
+class RecordsModel : public QAbstractTableModel {
     Q_OBJECT
 
 public:
-    UsersModel(QObject *parent = nullptr);
-    UsersModel(std::vector<User> users, QObject *parent = nullptr);
+    RecordsModel(QObject *parent = nullptr);
+//    RecordsModel(std::vector<User> users, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent) const override;
     int columnCount(const QModelIndex &parent) const override;
@@ -24,12 +25,16 @@ public:
 //    bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
 //    bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
 //    const std::vector<User> &getUsers() const;
-    void setUsers(std::vector<User> users);
+//    void setUsers(std::vector<User> users);
+
+public slots:
     void fetchData();
+    void fetchDataByAccountId(int accountId);
+    void fetchDataByUserId(int userId);
 
 private:
-    std::vector<User> users;
+    std::vector<Record> records;
 };
 
 
-#endif //CPP_TERM_PROJECT_USERSMODEL_H
+#endif //CPP_TERM_PROJECT_RECORDSMODEL_H

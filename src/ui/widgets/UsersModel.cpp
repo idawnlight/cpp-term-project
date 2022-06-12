@@ -145,9 +145,9 @@ Qt::ItemFlags UsersModel::flags(const QModelIndex &index) const {
     }
 }
 
-const std::vector<User> &UsersModel::getUsers() const {
-    return users;
-}
+//const std::vector<User> &UsersModel::getUsers() const {
+//    return users;
+//}
 
 void UsersModel::setUsers(std::vector<User> tusers) {
     users = tusers;
