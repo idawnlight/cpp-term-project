@@ -232,7 +232,7 @@ void AccountWidget::currentAccountWithdrawn() {
 void AccountWidget::currentAccountTransfer() {
     bool ok;
     double receiver = QInputDialog::getInt(nullptr, tr("Transfer - Rhine Bank"),
-                                           tr("Receiver Account ID: "), 0, 0, (double) current.balance / 100, 1, &ok);
+                                           tr("Receiver Account ID: "), 0, 0, 2147483647, 1, &ok);
     if (ok && receiver != current.id) {
         if (auto account = Db::getStorage().get_pointer<Account>(receiver)) {
             if (account->type == AccountType::Savings) {

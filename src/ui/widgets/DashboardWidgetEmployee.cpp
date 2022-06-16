@@ -76,7 +76,6 @@ DashboardWidgetEmployee::DashboardWidgetEmployee(QWidget *parent, const User &us
             &DashboardWidgetEmployee::activateRedeemButton);
     connect(redeemButton, &QAbstractButton::clicked, this, &DashboardWidgetEmployee::redeemFixedDeposit);
 
-
     auto recordsSideLayout = new QGridLayout;
     auto recordsSideTopLayout = new QVBoxLayout;
     recordsSideTopLayout->setAlignment(Qt::AlignTop);
@@ -179,11 +178,17 @@ void DashboardWidgetEmployee::deleteUser() {
     auto selectedRows = usersTableSelection->selectedRows();
     auto row = selectedRows.front();
     auto uid = usersModelProxy->data(row, Qt::EditRole).toInt();
+    auto accounts = Db::getStorage().count<Account>(where(c(&Account::belong_to) == uid));
+    if (accounts != 0) {
+        QMessageBox::information(nullptr, tr("Delete user - Rhine Bank"),
+                                 tr("You can't delete a user with open accounts."),
+                                 QMessageBox::Ok);
+        return;
+    }
     int ret = QMessageBox::warning(this, tr("Delete user - Rhine Bank"),
                                    tr("Do you really want to delete the user?"),
                                    QMessageBox::Yes | QMessageBox::Cancel);
     if (ret == QMessageBox::Yes) {
-        // TODO: check accounts
         Db::getStorage().remove<User>(uid);
         usersModel->fetchData();
         usersModelProxy->invalidate();

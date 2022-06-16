@@ -47,7 +47,6 @@ bool Utility::checkIdNumber(const char *idNumber) {
         z += (idNumber[j] - '0') * q[j];
     }
     z %= 11;
-//    qDebug() << symbol[z];
     return symbol[z] == idNumber[17];
 }
 

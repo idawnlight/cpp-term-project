@@ -13,7 +13,6 @@ DashboardWidget::DashboardWidget(QWidget *parent, const User &user)
 
     auto buttonLayout = new QHBoxLayout;
 
-
     auto logOutButton = new QPushButton(tr("Log Out"));
 //    headerLayout->addWidget(logOutButton, 0, Qt::AlignRight);
     auto userInfoButton = new QPushButton(tr("Info..."));

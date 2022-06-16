@@ -8,7 +8,7 @@
 #include "RecordsModel.h"
 
 class DashboardWidgetUser : public DashboardWidget {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     DashboardWidgetUser(QWidget *parent = nullptr, const User &user = {});

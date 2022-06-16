@@ -1,5 +1,6 @@
 #include "UserDialog.h"
 #include "utility.h"
+#include "db/Db.h"
 
 UserDialog::UserDialog(QWidget *parent, bool addUser) : QDialog(parent), isEditable(true), type(UserDialogType::Add) {
     initDialog();
@@ -41,12 +42,24 @@ void UserDialog::accept() {
                                          QMessageBox::Ok);
                 return;
             }
+            if (Db::getStorage().count<User>(where(c(&User::idNumber) == idNumText->text().toStdString())) != 0) {
+                QMessageBox::information(nullptr, tr("New User - Rhine Bank"),
+                                         tr("The ID card number is registered."),
+                                         QMessageBox::Ok);
+                return;
+            }
             user.idNumber = idNumText->text().toStdString();
         }
         if (phoneNumText->text() != user.phoneNumber.c_str()) {
             if (!Utility::checkPhoneNumber(phoneNumText->text().toLocal8Bit().data())) {
                 QMessageBox::information(nullptr, tr("Edit User - Rhine Bank"),
                                          tr("The phone number is invalid."),
+                                         QMessageBox::Ok);
+                return;
+            }
+            if (Db::getStorage().count<User>(where(c(&User::phoneNumber) == phoneNumText->text().toStdString())) != 0) {
+                QMessageBox::information(nullptr, tr("New User - Rhine Bank"),
+                                         tr("The phone number is registered."),
                                          QMessageBox::Ok);
                 return;
             }
@@ -71,10 +84,22 @@ void UserDialog::accept() {
                                      QMessageBox::Ok);
             return;
         }
+        if (Db::getStorage().count<User>(where(c(&User::idNumber) == idNumText->text().toStdString())) != 0) {
+            QMessageBox::information(nullptr, tr("New User - Rhine Bank"),
+                                     tr("The ID card number is registered."),
+                                     QMessageBox::Ok);
+            return;
+        }
 
         if (!Utility::checkPhoneNumber(phoneNumText->text().toLocal8Bit().data())) {
             QMessageBox::information(nullptr, tr("Edit User - Rhine Bank"),
                                      tr("The phone number is invalid."),
+                                     QMessageBox::Ok);
+            return;
+        }
+        if (Db::getStorage().count<User>(where(c(&User::phoneNumber) == phoneNumText->text().toStdString())) != 0) {
+            QMessageBox::information(nullptr, tr("New User - Rhine Bank"),
+                                     tr("The phone number is registered."),
                                      QMessageBox::Ok);
             return;
         }

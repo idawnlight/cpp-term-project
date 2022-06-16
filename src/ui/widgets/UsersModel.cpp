@@ -131,7 +131,6 @@ Qt::ItemFlags UsersModel::flags(const QModelIndex &index) const {
         return Qt::ItemIsEnabled;
 
     if (index.column() != 0) {
-        // TODO: flags
 //        return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
         return QAbstractTableModel::flags(index);
     } else {

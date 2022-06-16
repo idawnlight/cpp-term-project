@@ -53,11 +53,11 @@ LoginDialog::LoginDialog(QWidget *parent)
 
     // TODO: remove it
     if (Db::getStorage().count<User>() == 0) {
-        User temp{"Light", "440102198001021230", "13700000000", Utility::password_hash("password")};
+        User temp{"User 1", "440102198001021230", "13700000000", Utility::password_hash("password")};
         Db::getStorage().insert(temp);
     }
     if (Db::getStorage().count<User>(where(c(&User::employeeId) > 0)) == 0) {
-        User temp{"Light Admin", "440102198101021230", "13700000001", Utility::password_hash("password"), true};
+        User temp{"Employee 1", "440102198101021230", "13700000001", Utility::password_hash("password"), true};
         Db::getStorage().insert(temp);
     }
     if (Db::getStorage().count<Config>(where(c(&Config::key) == "interestRate")) == 0) {
