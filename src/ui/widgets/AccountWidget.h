@@ -55,7 +55,7 @@ private:
     QLabel *savingsLabel = new QLabel("<h2>Savings</h2>");
 
     QPushButton *currentDepositButton = new QPushButton(tr("Deposit"));
-    QPushButton *currentWithdrawnButton = new QPushButton(tr("Withdrawn"));
+    QPushButton *currentWithdrawnButton = new QPushButton(tr("Withdraw"));
     QPushButton *currentTransferButton = new QPushButton(tr("Transfer"));
 
     QPushButton *savingsDepositButton = new QPushButton(tr("New Fixed Deposit"));

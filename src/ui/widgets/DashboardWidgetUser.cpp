@@ -75,7 +75,7 @@ DashboardWidgetUser::DashboardWidgetUser(QWidget *parent, const User &user)
 
     mainLayout->addWidget(tabWidget);
 
-    auto copyright = new QLabel("Azure Bank™");
+    auto copyright = new QLabel("Rhine Bank, a Terran company");
     copyright->setAlignment(Qt::AlignRight);
     mainLayout->addWidget(copyright);
 }
@@ -144,7 +144,7 @@ void DashboardWidgetUser::redeemFixedDeposit() {
     int seconds = start.secsTo(end);
     int interest = (double) record.amount * record.interestRate / 100 * ((double) seconds / 31536000);
 //    qDebug() << interest;
-    int ret = QMessageBox::information(nullptr, tr("Redeem - Azure Bank"),
+    int ret = QMessageBox::information(nullptr, tr("Redeem - Rhine Bank"),
                                        QString("After redeem you will get $%1 of interest, continue?").arg(
                                                QString::number((double) interest / 100, 'f', 2)),
                                        QMessageBox::Yes | QMessageBox::Cancel);

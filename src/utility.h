@@ -15,4 +15,6 @@ public:
     static bool password_verify(const char *password, const char *hashed_password);
 
     static bool checkIdNumber(const char *idNumber);
+
+    static bool checkPhoneNumber(const char *phoneNumber);
 };

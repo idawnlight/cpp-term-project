@@ -105,7 +105,7 @@ DashboardWidgetEmployee::DashboardWidgetEmployee(QWidget *parent, const User &us
 
     mainLayout->addWidget(tabWidget);
 
-    auto copyright = new QLabel("Azure Bank™");
+    auto copyright = new QLabel("Rhine Bank, a Terran company");
     copyright->setAlignment(Qt::AlignRight);
     mainLayout->addWidget(copyright);
 }
@@ -179,7 +179,7 @@ void DashboardWidgetEmployee::deleteUser() {
     auto selectedRows = usersTableSelection->selectedRows();
     auto row = selectedRows.front();
     auto uid = usersModelProxy->data(row, Qt::EditRole).toInt();
-    int ret = QMessageBox::warning(this, tr("Delete user - Azure Bank"),
+    int ret = QMessageBox::warning(this, tr("Delete user - Rhine Bank"),
                                    tr("Do you really want to delete the user?"),
                                    QMessageBox::Yes | QMessageBox::Cancel);
     if (ret == QMessageBox::Yes) {
@@ -226,7 +226,7 @@ void DashboardWidgetEmployee::usersExport() {
 void DashboardWidgetEmployee::usersImport() {
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty()) {
-        int ret = QMessageBox::information(this, tr("Import - Azure Bank"),
+        int ret = QMessageBox::information(this, tr("Import - Rhine Bank"),
                                            tr("After importing you will need to restart."),
                                            QMessageBox::Yes | QMessageBox::Cancel);
         if (ret == QMessageBox::Yes) {
@@ -252,7 +252,7 @@ void DashboardWidgetEmployee::fetchRecordsByAccountId(int accountId) {
 void DashboardWidgetEmployee::setInterestRate() {
     bool ok;
     auto interestRate = Db::getStorage().get_all<Config>(where(c(&Config::key) == "interestRate")).front();
-    double rate = QInputDialog::getDouble(nullptr, tr("Set Interest Rate - Azure Bank"),
+    double rate = QInputDialog::getDouble(nullptr, tr("Set Interest Rate - Rhine Bank"),
                                           tr("New Interest Rate (won't affect existing fixed deposit): "),
                                           std::stod(interestRate.value), 0, 2147483647, 2, &ok);
     if (rate > 0 && ok) {
@@ -274,7 +274,7 @@ void DashboardWidgetEmployee::redeemFixedDeposit() {
     int seconds = start.secsTo(end);
     int interest = (double) record.amount * record.interestRate / 100 * ((double) seconds / 31536000);
 //    qDebug() << interest;
-    int ret = QMessageBox::information(nullptr, tr("Redeem - Azure Bank"),
+    int ret = QMessageBox::information(nullptr, tr("Redeem - Rhine Bank"),
                                        QString("After redeem you will get $%1 of interest, continue?").arg(
                                                QString::number((double) interest / 100, 'f', 2)),
                                        QMessageBox::Yes | QMessageBox::Cancel);

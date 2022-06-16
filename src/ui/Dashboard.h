@@ -18,6 +18,10 @@ public:
 public slots:
 
     void setUser(User user);
+    void userLogOut();
+
+signals:
+    void logOut();
 
 private:
     bool isEmployee = false;

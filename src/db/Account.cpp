@@ -33,7 +33,7 @@ QString Account::toString() {
     QString msg;
     msg.append(QString("Account ID: <strong>") + QString::number(id) + QString("</strong>"));
     msg.append(
-            QString("<br>Balance: <strong>") + QString::number((double) balance / 100, 'f', 2) + QString("</strong>"));
+            QString("<br>Balance: <strong>$") + QString::number((double) balance / 100, 'f', 2) + QString("</strong>"));
     return msg;
 }
 

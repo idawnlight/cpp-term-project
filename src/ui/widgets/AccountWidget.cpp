@@ -159,18 +159,18 @@ void AccountWidget::openCurrentAccount() {
 
 void AccountWidget::closeCurrentAccount() {
     if (current.balance != 0) {
-        QMessageBox::information(nullptr, tr("Close Account - Azure Bank"),
+        QMessageBox::information(nullptr, tr("Close Account - Rhine Bank"),
                                  tr("You can't close an account with balance."),
                                  QMessageBox::Ok);
         return;
     }
     if (savings.id != -1) {
-        QMessageBox::information(nullptr, tr("Close Account - Azure Bank"),
+        QMessageBox::information(nullptr, tr("Close Account - Rhine Bank"),
                                  tr("You can't close current account if savings account exists."),
                                  QMessageBox::Ok);
         return;
     }
-    int ret = QMessageBox::warning(nullptr, tr("Close Account - Azure Bank"),
+    int ret = QMessageBox::warning(nullptr, tr("Close Account - Rhine Bank"),
                                    tr("Do you really want to close the current account?"),
                                    QMessageBox::Yes | QMessageBox::Cancel);
     if (ret == QMessageBox::Yes) {
@@ -181,6 +181,9 @@ void AccountWidget::closeCurrentAccount() {
 }
 
 void AccountWidget::openSavingsAccount() {
+    if (current.id == -1) {
+        openCurrentAccount();
+    }
     Account newAccount{user.id, AccountType::Savings};
     Db::getStorage().insert(newAccount);
 
@@ -189,12 +192,12 @@ void AccountWidget::openSavingsAccount() {
 
 void AccountWidget::closeSavingsAccount() {
     if (savings.balance != 0) {
-        QMessageBox::information(nullptr, tr("Close Account - Azure Bank"),
+        QMessageBox::information(nullptr, tr("Close Account - Rhine Bank"),
                                  tr("You can't close an account with balance."),
                                  QMessageBox::Ok);
         return;
     }
-    int ret = QMessageBox::warning(nullptr, tr("Close Account - Azure Bank"),
+    int ret = QMessageBox::warning(nullptr, tr("Close Account - Rhine Bank"),
                                    tr("Do you really want to close the savings account?"),
                                    QMessageBox::Yes | QMessageBox::Cancel);
     if (ret == QMessageBox::Yes) {
@@ -206,7 +209,7 @@ void AccountWidget::closeSavingsAccount() {
 
 void AccountWidget::currentAccountDeposit() {
     bool ok;
-    double amount = QInputDialog::getDouble(nullptr, tr("Deposit - Azure Bank"),
+    double amount = QInputDialog::getDouble(nullptr, tr("Deposit - Rhine Bank"),
                                             tr("Deposit Amount: "), 0, 0, 2147483647, 2, &ok);
     if (ok && amount > 0) {
         current.deposit(amount * 100);
@@ -217,7 +220,7 @@ void AccountWidget::currentAccountDeposit() {
 
 void AccountWidget::currentAccountWithdrawn() {
     bool ok;
-    double amount = QInputDialog::getDouble(nullptr, tr("Withdrawn - Azure Bank"),
+    double amount = QInputDialog::getDouble(nullptr, tr("Withdrawn - Rhine Bank"),
                                             tr("Withdrawn Amount: "), 0, 0, (double) current.balance / 100, 2, &ok);
     if (ok && amount > 0) {
         current.withdrawn(amount * 100);
@@ -228,17 +231,17 @@ void AccountWidget::currentAccountWithdrawn() {
 
 void AccountWidget::currentAccountTransfer() {
     bool ok;
-    double receiver = QInputDialog::getInt(nullptr, tr("Transfer - Azure Bank"),
+    double receiver = QInputDialog::getInt(nullptr, tr("Transfer - Rhine Bank"),
                                            tr("Receiver Account ID: "), 0, 0, (double) current.balance / 100, 1, &ok);
     if (ok && receiver != current.id) {
         if (auto account = Db::getStorage().get_pointer<Account>(receiver)) {
             if (account->type == AccountType::Savings) {
-                QMessageBox::information(nullptr, tr("Transfer - Azure Bank"),
+                QMessageBox::information(nullptr, tr("Transfer - Rhine Bank"),
                                          tr("Transfer to savings account is not allowed.\nFor fixed deposit please use \"New Fixed Deposit\"."),
                                          QMessageBox::Ok);
                 return;
             }
-            double amount = QInputDialog::getDouble(nullptr, tr("Transfer - Azure Bank"),
+            double amount = QInputDialog::getDouble(nullptr, tr("Transfer - Rhine Bank"),
                                                     QString("Transfer Amount (to %1): ").arg(
                                                             account->user().name.c_str()), 0, 0,
                                                     (double) current.balance / 100, 2, &ok);
@@ -248,7 +251,7 @@ void AccountWidget::currentAccountTransfer() {
                 emit newRecord();
             }
         } else {
-            QMessageBox::information(nullptr, tr("Transfer - Azure Bank"),
+            QMessageBox::information(nullptr, tr("Transfer - Rhine Bank"),
                                      tr("Receiver account not found."),
                                      QMessageBox::Ok);
         }
@@ -258,7 +261,7 @@ void AccountWidget::currentAccountTransfer() {
 void AccountWidget::savingsAccountDeposit() {
     auto interestRate = Db::getStorage().get_all<Config>(where(c(&Config::key) == "interestRate")).front();
     bool ok;
-    double amount = QInputDialog::getDouble(nullptr, tr("Fixed Deposit - Azure Bank"),
+    double amount = QInputDialog::getDouble(nullptr, tr("Fixed Deposit - Rhine Bank"),
                                             QString("Fixed Deposit Amount (current interest rate %1): ").arg(
                                                     interestRate.value.c_str()), 0, 0, (double) current.balance / 100,
                                             2, &ok);

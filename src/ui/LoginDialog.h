@@ -28,6 +28,7 @@ signals:
 public slots:
 
     void accept() override;
+    void logOut();
 
 };
 

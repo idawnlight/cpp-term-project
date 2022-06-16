@@ -15,6 +15,9 @@ public slots:
     void userInfo();
     virtual void userChanged(User user);
 
+signals:
+    void logOut();
+
 protected:
     User user;
     QVBoxLayout *mainLayout;

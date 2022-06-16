@@ -1,9 +1,9 @@
 #include "UserDialog.h"
 #include "utility.h"
 
-UserDialog::UserDialog(QWidget *parent, bool addUser) : QDialog(parent), type(UserDialogType::Add) {
+UserDialog::UserDialog(QWidget *parent, bool addUser) : QDialog(parent), isEditable(true), type(UserDialogType::Add) {
     initDialog();
-    setWindowTitle(tr("Add User - Azure Bank"));
+    setWindowTitle(tr("Add User - Rhine Bank"));
 
     gLayout->addWidget(new QLabel("Add a new user"), 0, 0, 1, 2);
 }
@@ -14,7 +14,7 @@ UserDialog::UserDialog(QWidget *parent, User tUser, bool isEditable)
           isEditable(isEditable),
           type(UserDialogType::Edit) {
     initDialog();
-    setWindowTitle(tr("Edit User - Azure Bank"));
+    setWindowTitle(tr("Edit User - Rhine Bank"));
 
     gLayout->addWidget(new QLabel("User ID"), 0, 0);
     gLayout->addWidget(new QLabel(QString::number(user.id)), 0, 1);
@@ -35,9 +35,21 @@ void UserDialog::accept() {
             user.name = nameText->text().toStdString();
         }
         if (idNumText->text() != user.idNumber.c_str()) {
+            if (!Utility::checkIdNumber(idNumText->text().toLocal8Bit().data())) {
+                QMessageBox::information(nullptr, tr("Edit User - Rhine Bank"),
+                                         tr("The ID card number is invalid."),
+                                         QMessageBox::Ok);
+                return;
+            }
             user.idNumber = idNumText->text().toStdString();
         }
         if (phoneNumText->text() != user.phoneNumber.c_str()) {
+            if (!Utility::checkPhoneNumber(phoneNumText->text().toLocal8Bit().data())) {
+                QMessageBox::information(nullptr, tr("Edit User - Rhine Bank"),
+                                         tr("The phone number is invalid."),
+                                         QMessageBox::Ok);
+                return;
+            }
             user.phoneNumber = phoneNumText->text().toStdString();
         }
         if (!passwordText->text().isEmpty()) {
@@ -46,10 +58,32 @@ void UserDialog::accept() {
 
         emit userChanged(user);
     } else {
+        if (nameText->text().isEmpty() || passwordText->text().isEmpty() || phoneNumText->text().isEmpty()) {
+            QMessageBox::information(nullptr, tr("New User - Rhine Bank"),
+                                     tr("Please fill all the fields."),
+                                     QMessageBox::Ok);
+            return;
+        }
+
+        if (!Utility::checkIdNumber(idNumText->text().toLocal8Bit().data())) {
+            QMessageBox::information(nullptr, tr("New User - Rhine Bank"),
+                                     tr("The ID card number is invalid."),
+                                     QMessageBox::Ok);
+            return;
+        }
+
+        if (!Utility::checkPhoneNumber(phoneNumText->text().toLocal8Bit().data())) {
+            QMessageBox::information(nullptr, tr("Edit User - Rhine Bank"),
+                                     tr("The phone number is invalid."),
+                                     QMessageBox::Ok);
+            return;
+        }
+
         User newUser{nameText->text().toStdString(),
                      idNumText->text().toStdString(),
                      phoneNumText->text().toStdString(),
                      Utility::password_hash(passwordText->text().toLocal8Bit().data())};
+
         emit userAdded(newUser);
     }
 
@@ -66,7 +100,6 @@ void UserDialog::initDialog() {
         idNumText->setReadOnly(true);
         phoneNumText->setReadOnly(true);
     }
-
 
     gLayout->addWidget(new QLabel("Name"), 1, 0);
     gLayout->addWidget(nameText, 1, 1);

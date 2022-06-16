@@ -25,8 +25,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     passwordText->setEchoMode(QLineEdit::Password);
 
     auto buttonLayout = new QHBoxLayout;
-    auto debugUserButton = new QPushButton(tr("User"));
-    auto debugEmployeeButton = new QPushButton(tr("Employee"));
+    auto debugUserButton = new QPushButton(tr("User 1"));
+    auto debugEmployeeButton = new QPushButton(tr("Employee 1"));
     buttonLayout->addWidget(debugUserButton);
     buttonLayout->addWidget(debugEmployeeButton);
     connect(debugUserButton, &QAbstractButton::clicked, this, &LoginDialog::debugFillUser);
@@ -38,7 +38,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     gLayout->addWidget(usernameNoteLabel, 2, 0, 1, 2);
     gLayout->addLayout(buttonLayout, 3, 1, Qt::AlignRight);
 
-    auto titleLabel = new QLabel("<h2>Azure Bank</h2>");
+    auto titleLabel = new QLabel("<h2>Rhine Bank");
 
     auto mainLayout = new QVBoxLayout;
     mainLayout->addWidget(titleLabel);
@@ -49,7 +49,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(okButton, &QAbstractButton::clicked, this, &QDialog::accept);
 //    connect(cancelButton, &QAbstractButton::doubleClicked, this, &QDialog::reject);
 
-    setWindowTitle(tr("Login - Azure Bank"));
+    setWindowTitle(tr("Login - Rhine Bank"));
 
     // TODO: remove it
     if (Db::getStorage().count<User>() == 0) {
@@ -67,7 +67,6 @@ LoginDialog::LoginDialog(QWidget *parent)
 }
 
 void LoginDialog::accept() {
-// TODO: real login
     try {
         auto users = Db::getStorage().get_all<User>(
                 where(c(&User::phoneNumber) == nameText->text().toLocal8Bit().constData() or
@@ -98,6 +97,10 @@ void LoginDialog::debugFillUser() {
 }
 
 void LoginDialog::debugFillEmployee() {
-    nameText->setText("440102198101021230");
+    nameText->setText("440102198101021238");
     passwordText->setText("password");
+}
+
+void LoginDialog::logOut() {
+    show();
 }

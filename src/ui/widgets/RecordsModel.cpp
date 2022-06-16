@@ -181,6 +181,7 @@ void RecordsModel::fetchDataByAccountId(int accountId) {
 }
 
 void RecordsModel::fetchDataByUserId(int userId) {
+    records.clear();
     auto accounts = Db::getStorage().get_all<Account>(where(c(&Account::belong_to) == userId));
     for (auto account: accounts) {
         if (account.type == AccountType::Current) {
